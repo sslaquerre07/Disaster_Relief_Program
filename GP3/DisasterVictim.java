@@ -12,20 +12,37 @@ public class DisasterVictim {
     private String firstName;
     private String lastName;
     private String dateOfBirth;
+    private Integer age;
     private final int ASSIGNED_SOCIAL_ID;
     private ArrayList<FamilyRelation> familyConnections = new ArrayList<>();
     private ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
+    private ArrayList<DietaryRestriction> dietaryRestrictions = new ArrayList<>();
     private Supply[] personalBelongings;
     private final String ENTRY_DATE;
     private String gender;
     private String comments;
 
-    public DisasterVictim(String firstName, String ENTRY_DATE) {
+    public DisasterVictim(String firstName, String ENTRY_DATE, Integer age) {
         this.firstName = firstName;
         if (!isValidDateFormat(ENTRY_DATE)) {
             throw new IllegalArgumentException("Invalid date format for entry date. Expected format: YYYY-MM-DD");
         }
         this.ENTRY_DATE = ENTRY_DATE;
+        this.age = age;
+        this.dateOfBirth = null;
+        this.ASSIGNED_SOCIAL_ID = generateSocialID();
+        
+    }
+
+    //Second constructor with Date of birth instead of null
+    public DisasterVictim(String firstName, String ENTRY_DATE, String dateOfBirth) {
+        this.firstName = firstName;
+        if (!isValidDateFormat(ENTRY_DATE) || !isValidDateFormat(dateOfBirth)) {
+            throw new IllegalArgumentException("Invalid date format for entry date. Expected format: YYYY-MM-DD");
+        }
+        this.ENTRY_DATE = ENTRY_DATE;
+        this.age = null;
+        this.dateOfBirth = dateOfBirth;
         this.ASSIGNED_SOCIAL_ID = generateSocialID();
         
     }
@@ -68,21 +85,35 @@ public class DisasterVictim {
             throw new IllegalArgumentException("Invalid date format for date of birth. Expected format: YYYY-MM-DD");
         }
         this.dateOfBirth = dateOfBirth;
+        this.age = null;
     }
 
     public int getAssignedSocialID() {
         return ASSIGNED_SOCIAL_ID;
     }
 
-  public FamilyRelation[] getFamilyConnections() {
+    public Integer getAge(){
+        return this.age;
+    }
+
+    public void setAge(Integer age){
+        this.age = age;
+        this.dateOfBirth = null;
+    }
+
+    public ArrayList<FamilyRelation> getFamilyConnections() {
         return familyConnections.toArray(new FamilyRelation[0]);
     }
 
-    public MedicalRecord[] getMedicalRecords() {
-        return medicalRecords.toArray(new MedicalRecord[0]);
+    public ArrayList<DietaryRestriction> getDietaryRestrictions(){
+        return this.dietaryRestrictions;
     }
 
-    public Supply[] getPersonalBelongings() {
+    public ArrayList<MedicalRecord> getMedicalRecords() {
+        return medicalRecords.toArray(new MedicalRecord[0]);
+    }   
+
+    public ArrayList<Supply> getPersonalBelongings() {
         return this.personalBelongings;
     }
 
@@ -101,6 +132,10 @@ public class DisasterVictim {
         for (MedicalRecord newRecord : records) {
             addMedicalRecord(newRecord);
         }
+    }
+
+    public void setDietaryRestrictions(ArrayList<DietaryRestriction> dietaryRestrictions){
+        this.dietaryRestrictions = dietaryRestrictions;
     }
 
     public void setPersonalBelongings(Supply[] belongings) {
@@ -161,6 +196,10 @@ public class DisasterVictim {
         medicalRecords.add(record);
     }
 
+    public void addDietaryRestriction(DietaryRestriction restriction){
+        this.dietaryRestrictions.add(restriction);
+    }
+
     public String getEntryDate() {
         return ENTRY_DATE;
     }
@@ -185,6 +224,20 @@ public class DisasterVictim {
     }
 
    
+}
+
+
+//Dietary Restrictions Declaration
+enum DietaryRestriction {
+    AVML,
+    DBML,
+    GFML,
+    KSML,
+    LSML,
+    MOML,
+    PFML,
+    VGML,
+    VJML
 }
 
 
