@@ -1,21 +1,14 @@
 package edu.ucalgary.oop;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-public class ReliefService {
+import java.util.*;
+
+public class ReliefService implements InquiryLogging{
     private Inquirer inquirer;
-    private DisasterVictim missingPerson;
-    private String dateOfInquiry;
-    private String infoProvided;
-    private Location lastKnownLocation;
+    private ArrayList<Inquiry> inquiries = new ArrayList<Inquiry>(); //Initialized
 
     // Constructor
-    public ReliefService(Inquirer inquirer, DisasterVictim missingPerson, String dateOfInquiry, String infoProvided, Location lastKnownLocation) {
+    public ReliefService(Inquirer inquirer) {
         this.inquirer = inquirer;
-        this.missingPerson = missingPerson;
-        setDateOfInquiry(dateOfInquiry);
-        this.infoProvided = infoProvided;
-        this.lastKnownLocation = lastKnownLocation;
     }
 
     // Getter and setter for inquirer
@@ -27,60 +20,44 @@ public class ReliefService {
         this.inquirer = inquirer;
     }
 
-    // Getter and setter for missingPerson
-    public DisasterVictim getMissingPerson() {
-        return missingPerson;
+    public ArrayList<Inquiry> getInquiries() {
+        return this.getInquiries();
     }
 
-    public void setMissingPerson(DisasterVictim missingPerson) {
-        this.missingPerson = missingPerson;
+    public void addInquiries(DisasterVictim missingPerson, String dateOfInquiry, String infoProvided){
+        //Following the rules of composition
+        //This is why there is no setInquiries, as we could not implement the rules of composition while setting
+        //multiple inquiries at once without it getting out of hand
+        this.inquiries.add(new Inquiry(missingPerson, dateOfInquiry, infoProvided));
     }
 
-    // Getter and setter for dateOfInquiry
-    public String getDateOfInquiry() {
-        return dateOfInquiry;
-    }
-
-    public void setDateOfInquiry(String dateOfInquiry) {
-        // Check if the dateOfInquiry string matches the expected date format
-        if (!isValidDateFormat(dateOfInquiry)) {
-            throw new IllegalArgumentException("Invalid date format for date of inquiry. Expected format: YYYY-MM-DD");
-        }
-        this.dateOfInquiry = dateOfInquiry;
-    }
-
-    // Getter and setter for infoProvided
-    public String getInfoProvided() {
-        return infoProvided;
-    }
-
-    public void setInfoProvided(String infoProvided) {
-        this.infoProvided = infoProvided;
-    }
-
-    // Getter and setter for lastKnownLocation
-    public Location getLastKnownLocation() {
-        return lastKnownLocation;
-    }
-
-    public void setLastKnownLocation(Location lastKnownLocation) {
-        this.lastKnownLocation = lastKnownLocation;
-    }
-
-    // Helper method to check if a string matches the YYYY-MM-DD date format
-    private boolean isValidDateFormat(String date) {
-        try {
-            LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
     public String getLogDetails() {
-       return "Inquirer: " + inquirer.getFirstName() + 
-           ", Missing Person: " + missingPerson.getFirstName() + 
-           ", Date of Inquiry: " + dateOfInquiry + 
-           ", Info Provided: " + infoProvided + 
-           ", Last Known Location: " + lastKnownLocation.getName();
-}
+       StringBuffer log = new StringBuffer();
+       log.append("Inquirer: " + this.getInquirer() + "\n");
+       for(Inquiry inquiry : this.inquiries){
+            log.append(inquiry.getLogDetails());
+            log.append("\n");
+       }
+       return log.toString();
+    }
+
+    public void printLogDetails(){
+        System.out.println(getLogDetails());
+    }
+
+    @Override
+    public void logInquiry(Inquiry inquiry) {
+        // TODO Auto-generated method stub
+        //Terminal input methods here
+        //Possibly store the input in a database?
+        //Add it to the inquiries list for this inquirer
+    }
+
+    @Override
+    public void searchVictim() {
+        // TODO Auto-generated method stub
+        //Terminal input methods here
+        //Return all Disaster victims(how??) and either display or return them as needed.
+        
+    }
 }

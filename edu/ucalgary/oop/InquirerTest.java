@@ -11,14 +11,14 @@ import static org.junit.Assert.*;
 
 public class InquirerTest {
     
-/* 
-Define the values which will be used for tests
-*/
-private String expectedFirstName = "Joseph";
-private String expectedLastName = "Bouillon";
-private String expectedPhoneNumber = "+1-123-456-7890";
-private String expectedMessage = "looking for my family members";
-private Inquirer inquirer = new Inquirer(expectedFirstName, expectedLastName, expectedPhoneNumber, expectedMessage);
+    /* 
+    Define the values which will be used for tests
+    */
+    private String expectedFirstName = "Joseph";
+    private String expectedLastName = "Bouillon";
+    private String expectedPhoneNumber = "+1-123-456-7890";
+    private String expectedMessage = "looking for my family members";
+    private Inquirer inquirer = new Inquirer(expectedFirstName, expectedLastName, expectedPhoneNumber, expectedMessage);
 
 /*
 testObjectCreation -> means testing Inquirer constructor: 

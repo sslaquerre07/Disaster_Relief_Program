@@ -17,7 +17,7 @@ public class DisasterVictim {
     private ArrayList<FamilyRelation> familyConnections = new ArrayList<>();
     private ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
     private ArrayList<DietaryRestriction> dietaryRestrictions = new ArrayList<>();
-    private ArrayList<Supply> personalBelongings;
+    private ArrayList<Supply> personalBelongings = new ArrayList<>();
     private final String ENTRY_DATE;
     private String gender;
     private String comments;
@@ -120,14 +120,14 @@ public class DisasterVictim {
     // The add and remove methods remain correct.
     
     // Correct the setters to accept Lists instead of arrays
-    public void setFamilyConnections(FamilyRelation[] connections) {
+    public void setFamilyConnections(ArrayList<FamilyRelation> connections) {
         this.familyConnections.clear();
         for (FamilyRelation newRecord : connections) {
             addFamilyConnection(newRecord);
         }
     }
 
-    public void setMedicalRecords(MedicalRecord[] records) {
+    public void setMedicalRecords(ArrayList<MedicalRecord> records) {
         this.medicalRecords.clear();
         for (MedicalRecord newRecord : records) {
             addMedicalRecord(newRecord);

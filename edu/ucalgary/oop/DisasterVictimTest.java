@@ -45,7 +45,7 @@ public class DisasterVictimTest {
   @Test
     public void testConstructorWithValidEntryDate() {
         String validEntryDate = "2024-01-18";
-        DisasterVictim victim = new DisasterVictim("Freda", validEntryDate);
+        DisasterVictim victim = new DisasterVictim("Freda", validEntryDate, 13);
         assertNotNull("Constructor should successfully create an instance with a valid entry date", victim);
         assertEquals("Constructor should set the entry date correctly", validEntryDate, victim.getEntryDate());
     }
@@ -152,9 +152,9 @@ public class DisasterVictimTest {
     public void testGetAssignedSocialID() {
         // The next victim should have an ID one higher than the previous victim
         // Tests can be run in any order so two victims will be created
-        DisasterVictim newVictim = new DisasterVictim("Kash", "2024-01-21");
+        DisasterVictim newVictim = new DisasterVictim("Kash", "2024-01-21", 13);
         int expectedSocialId = newVictim.getAssignedSocialID() + 1;
-        DisasterVictim actualVictim = new DisasterVictim("Adeleke", "2024-01-22");
+        DisasterVictim actualVictim = new DisasterVictim("Adeleke", "2024-01-22", 13);
 
         assertEquals("getAssignedSocialID should return the expected social ID", expectedSocialId, actualVictim.getAssignedSocialID());
     }
@@ -292,15 +292,15 @@ public class DisasterVictimTest {
 
     @Test
     public void testRemoveFamilyConnection() {
-        DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20");
-        DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22");
+        DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 18);
+        DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 19);
         FamilyRelation relation1 = new FamilyRelation(victim, "sibling", victim1);
         FamilyRelation relation2 = new FamilyRelation(victim, "sibling", victim2);
         ArrayList<FamilyRelation> expectedRelations = new ArrayList<>(Arrays.asList(relation2));
         ArrayList<FamilyRelation> originalRelations = new ArrayList<>(Arrays.asList(relation1, relation2));
         victim.setFamilyConnections(originalRelations);
 
-        DisasterVictim victim = new DisasterVictim("Freda", "2024-01-23");
+        DisasterVictim victim = new DisasterVictim("Freda", "2024-01-23", 20);
         victim.addFamilyConnection(relation1);
         victim.addFamilyConnection(relation2);
         victim.removeFamilyConnection(relation1);
@@ -310,7 +310,7 @@ public class DisasterVictimTest {
 
         int i;
         //Looks for relation1 as it should have been deleted
-        for (i = 0; i < testFamily.length; i++) {
+        for (i = 0; i < testFamily.size(); i++) {
             if (testFamily.get(i) == relation1) {
                 correct = false;
             }
@@ -321,8 +321,8 @@ public class DisasterVictimTest {
     @Test 
     public void testRemoveFamilyConnectionSideEffects(){
         //If person 1 and 2 are related, removing the connection from on person 1 should also remove the connection on person 2
-        DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20");
-        DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22");
+        DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 25);
+        DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 24);
         FamilyRelation relation1 = new FamilyRelation(victim1, "sibling", victim2);
         //This next line was tested in a previous test, but this should also add the connection in victim2
         victim1.addFamilyConnection(relation1);
@@ -334,22 +334,23 @@ public class DisasterVictimTest {
 
     @Test
     public void testSetFamilyConnection() {
-        DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20");
-        DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22");
+        DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 33);
+        DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 44);
 
         FamilyRelation relation = new FamilyRelation(victim1, "sibling", victim2);
-        ArrayList<FamilyRelation> expectedRelations = {relation};
+        ArrayList<FamilyRelation> expectedRelations = new ArrayList<>();
+        expectedRelations.add(relation);
         victim1.setFamilyConnections(expectedRelations);
         boolean correct = true;
 
        // We have not studied overriding equals in arrays of custom objects so we will manually evaluate equality
        ArrayList<FamilyRelation> actualRecords = victim1.getFamilyConnections();
-       if (expectedRelations.length != actualRecords.length) {
+       if (expectedRelations.size() != actualRecords.size()) {
            correct = false;
        } else {    
            int i;
-           for (i=0;i<actualRecords.length;i++) {
-               if (expectedRelations[i] != actualRecords[i]) {
+           for (i=0;i<actualRecords.size();i++) {
+               if (expectedRelations.get(i) != actualRecords.get(i)) {
                    correct = false;
                }
            }
@@ -368,7 +369,7 @@ public class DisasterVictimTest {
         boolean correct = false;
  
         int i;
-        for (i = 0; i < testSupplies.length; i++) {
+        for (i = 0; i < testSupplies.size(); i++) {
             if (testSupplies.get(i) == newSupply) {
                 correct = true;
             }
@@ -383,12 +384,12 @@ public class DisasterVictimTest {
             victim.addPersonalBelonging(supplyToRemove); 
             victim.removePersonalBelonging(supplyToRemove);
 
-            Supply[] testSupplies = victim.getPersonalBelongings();
+            ArrayList<Supply> testSupplies = victim.getPersonalBelongings();
             boolean correct = true;
     
             int i;
-            for (i = 0; i < testSupplies.length; i++) {
-                if (testSupplies[i] == supplyToRemove) {
+            for (i = 0; i < testSupplies.size(); i++) {
+                if (testSupplies.get(i) == supplyToRemove) {
                     correct = false;
                 }
             }
@@ -399,19 +400,21 @@ public class DisasterVictimTest {
     public void testSetPersonalBelongings() {
         Supply one = new Supply("Tent", 1);
         Supply two = new Supply("Jug", 3);
-        Supply[] newSupplies = {one, two};
+        ArrayList<Supply> newSupplies = new ArrayList<>();
+        newSupplies.add(one);
+        newSupplies.add(two);
         boolean correct = true;
 
         victim.setPersonalBelongings(newSupplies);
-        Supply[] actualSupplies = victim.getPersonalBelongings();
+        ArrayList<Supply> actualSupplies = victim.getPersonalBelongings();
 
         // We have not studied overriding equals in arrays of custom objects so we will manually evaluate equality
-        if (newSupplies.length != actualSupplies.length) {
+        if (newSupplies.size() != actualSupplies.size()) {
             correct = false;
         } else {
             int i;
-            for (i=0;i<newSupplies.length;i++) {
-                if (actualSupplies[i] != newSupplies[i]) {
+            for (i=0;i<newSupplies.size();i++) {
+                if (actualSupplies.get(i) != newSupplies.get(i)) {
                     correct = false;
                 }
             }
@@ -428,17 +431,18 @@ public class DisasterVictimTest {
         MedicalRecord testRecord = new MedicalRecord(testLocation, "test for strep", "2024-02-09");
         boolean correct = true;
 
-        MedicalRecord[] newRecords = { testRecord };
+        ArrayList<MedicalRecord> newRecords = new ArrayList<>();
+        newRecords.add(testRecord);
         victim.setMedicalRecords(newRecords);
-        MedicalRecord[] actualRecords = victim.getMedicalRecords();
+        ArrayList<MedicalRecord> actualRecords = victim.getMedicalRecords();
 
         // We have not studied overriding equals in arrays of custom objects so we will manually evaluate equality
-        if (newRecords.length != actualRecords.length) {
+        if (newRecords.size() != actualRecords.size()) {
             correct = false;
         } else {
             int i;
-            for (i=0;i<newRecords.length;i++) {
-                if (actualRecords[i] != newRecords[i]) {
+            for (i=0;i<newRecords.size();i++) {
+                if (actualRecords.get(i) != newRecords.get(i)) {
                     correct = false;
                 }
             }
