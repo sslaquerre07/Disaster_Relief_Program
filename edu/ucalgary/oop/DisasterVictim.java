@@ -17,7 +17,7 @@ public class DisasterVictim {
     private ArrayList<FamilyRelation> familyConnections = new ArrayList<>();
     private ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
     private ArrayList<DietaryRestriction> dietaryRestrictions = new ArrayList<>();
-    private Supply[] personalBelongings;
+    private ArrayList<Supply> personalBelongings;
     private final String ENTRY_DATE;
     private String gender;
     private String comments;
@@ -102,7 +102,7 @@ public class DisasterVictim {
     }
 
     public ArrayList<FamilyRelation> getFamilyConnections() {
-        return familyConnections.toArray(new FamilyRelation[0]);
+        return this.familyConnections;
     }
 
     public ArrayList<DietaryRestriction> getDietaryRestrictions(){
@@ -110,7 +110,7 @@ public class DisasterVictim {
     }
 
     public ArrayList<MedicalRecord> getMedicalRecords() {
-        return medicalRecords.toArray(new MedicalRecord[0]);
+        return this.medicalRecords;
     }   
 
     public ArrayList<Supply> getPersonalBelongings() {
@@ -138,48 +138,24 @@ public class DisasterVictim {
         this.dietaryRestrictions = dietaryRestrictions;
     }
 
-    public void setPersonalBelongings(Supply[] belongings) {
+    public void setPersonalBelongings(ArrayList<Supply> belongings) {
         this.personalBelongings = belongings;
     }
 
     // Add a Supply to personalBelonging
     public void addPersonalBelonging(Supply supply) {
-
-        if (this.personalBelongings == null) {
-            Supply tmpSupply[] = { supply };
-            this.setPersonalBelongings(tmpSupply);
-            return;
-        }
-
-        // Create an array one larger than the previous array
-        int newLength = this.personalBelongings.length + 1;
-        Supply tmpPersonalBelongings[] = new Supply[newLength];
-
-        // Copy all the items in the current array to the new array
-        int i;
-        for (i=0; i < personalBelongings.length; i++) {
-            tmpPersonalBelongings[i] = this.personalBelongings[i];
-        }
-
-        // Add the new element at the end of the new array
-        tmpPersonalBelongings[i] = supply;
-
-        // Replace the original array with the new array
-        this.personalBelongings = tmpPersonalBelongings;
+        this.personalBelongings.add(supply);
     }
 
     // Remove a Supply from personalBelongings, we assume it only appears once
     public void removePersonalBelonging(Supply unwantedSupply) {
-        Supply[] updatedBelongings = new Supply[personalBelongings.length-1];
-        int index = 0;
-        int newIndex = index;
-        for (Supply supply : personalBelongings) {
+        ArrayList<Supply> updatedBelongings = new ArrayList<>();
+        for (Supply supply : this.personalBelongings) {
             if (!supply.equals(unwantedSupply)) {
-                updatedBelongings[newIndex] = supply;
-                newIndex++;
+                updatedBelongings.add(supply);
             }
-            index++;
         }
+        this.setPersonalBelongings(updatedBelongings);
     }
 
     public void removeFamilyConnection(FamilyRelation exRelation) {

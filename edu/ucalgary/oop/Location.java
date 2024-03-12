@@ -148,4 +148,10 @@ public class Location {
     public void removeSupply(Supply supply) {
         supplies.remove(supply);
     }
+
+    //Remove a supply and allocate it to a DisasterVictim
+    public void removeSupply(Supply supply, DisasterVictim victim){
+        this.supplies.remove(supply);
+        victim.addPersonalBelonging(supply);
+    }
 }
