@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.List;
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -53,8 +52,8 @@ public class DisasterVictimTest {
     public void testConstructorWithValidBirthDate() {
         String validBirthDate = "2012-06-09";
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", validBirthDate);
-        assertNotNull("Constructor should successfully create an instance with a valid birth date", victim);
-        assertEquals("Constructor should set the entry date correctly", validBirthDate, victim.getDateOfBirth());
+        assertNotNull("Constructor should successfully create an instance with a valid birth date", victim2);
+        assertEquals("Constructor should set the entry date correctly", validBirthDate, victim2.getDateOfBirth());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -284,7 +283,7 @@ public class DisasterVictimTest {
         ArrayList<FamilyRelation> testFamilySibling3 = victim3.getFamilyConnections();
         boolean correct = false;
 
-        if((testFamilySibling1.size() == 2) && (testFamilySibling3.size() == 2)){
+        if((testFamilySibling1.size() == 2) && (testFamilySibling2.size() == 2) && (testFamilySibling3.size() == 2)){
             correct = true;
         }
         assertTrue("The second add Family connection should also connect siblings 1 and three", correct);
@@ -315,7 +314,7 @@ public class DisasterVictimTest {
                 correct = false;
             }
         }
-        assertTrue("removeFamilyConnection should remove the family member", true);
+        assertTrue("removeFamilyConnection should remove the family member", correct);
     }
 
     @Test 
@@ -393,7 +392,7 @@ public class DisasterVictimTest {
                     correct = false;
                 }
             }
-        assertTrue("removePersonalBelonging should remove the supply from personal belongings", true);
+        assertTrue("removePersonalBelonging should remove the supply from personal belongings", correct);
     }
 
     @Test
