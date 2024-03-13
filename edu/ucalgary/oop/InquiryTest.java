@@ -1,5 +1,8 @@
 package edu.ucalgary.oop;
 
+import org.junit.*;
+import static org.junit.Assert.*;
+
 public class InquiryTest {
     private Inquiry inquiry;
     private DisasterVictim missingPerson;

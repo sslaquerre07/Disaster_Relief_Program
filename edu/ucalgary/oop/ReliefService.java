@@ -2,7 +2,7 @@ package edu.ucalgary.oop;
 
 import java.util.*;
 
-public class ReliefService implements InquiryLogging{
+public class ReliefService extends UserInteraction implements InquiryLogging{
     private Inquirer inquirer;
     private ArrayList<Inquiry> inquiries = new ArrayList<Inquiry>(); //Initialized
 
@@ -59,5 +59,11 @@ public class ReliefService implements InquiryLogging{
         //Terminal input methods here
         //Return all Disaster victims(how??) and either display or return them as needed.
         
+    }
+
+    @Override
+    public <T> void getTerminalInput() {
+        // TODO Auto-generated method stub
+        super.getTerminalInput();
     }
 }
