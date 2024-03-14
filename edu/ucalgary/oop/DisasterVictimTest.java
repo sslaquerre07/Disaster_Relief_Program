@@ -286,7 +286,7 @@ public class DisasterVictimTest {
         if((testFamilySibling1.size() == 2) && (testFamilySibling2.size() == 2) && (testFamilySibling3.size() == 2)){
             correct = true;
         }
-        assertTrue("The second add Family connection should also connect siblings 1 and three", correct);
+        assertTrue("The second add Family connection should also connect siblings 1 and 3", correct);
     }
 
     @Test
@@ -295,7 +295,6 @@ public class DisasterVictimTest {
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 19);
         FamilyRelation relation1 = new FamilyRelation(victim, "sibling", victim1);
         FamilyRelation relation2 = new FamilyRelation(victim, "sibling", victim2);
-        ArrayList<FamilyRelation> expectedRelations = new ArrayList<>(Arrays.asList(relation2));
         ArrayList<FamilyRelation> originalRelations = new ArrayList<>(Arrays.asList(relation1, relation2));
         victim.setFamilyConnections(originalRelations);
 

@@ -24,7 +24,7 @@ public class ReliefService extends UserInteraction implements InquiryLogging{
         return this.getInquiries();
     }
 
-    public void addInquiries(DisasterVictim missingPerson, String dateOfInquiry, String infoProvided){
+    public void addInquiry(DisasterVictim missingPerson, String dateOfInquiry, String infoProvided){
         //Following the rules of composition
         //This is why there is no setInquiries, as we could not implement the rules of composition while setting
         //multiple inquiries at once without it getting out of hand

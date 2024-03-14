@@ -40,7 +40,7 @@ public class LocationTest {
 
     /*Name related tests */
     @Test
-    public void testSetName() {
+    public void testSetAndGetName() {
         String newName = "Shelter B";
         location.setName(newName);
         assertEquals("setName should update the name of the location", newName, location.getName());
@@ -50,7 +50,7 @@ public class LocationTest {
 
     /*Address related tests */
     @Test
-    public void testSetAddress() {
+    public void testSetAndGetAddress() {
         String newAddress = "4321 Shelter Blvd";
         location.setAddress(newAddress);
         assertEquals("setAddress should update the address of the location", newAddress, location.getAddress());

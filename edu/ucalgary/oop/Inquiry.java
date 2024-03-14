@@ -66,9 +66,19 @@ public class Inquiry {
     }
 
     public String getLogDetails() {
-        return ", Missing Person: " + missingPerson.getFirstName() + 
+        return "Missing Person: " + missingPerson.getFirstName() + 
             ", Date of Inquiry: " + dateOfInquiry + 
             ", Info Provided: " + infoProvided + 
-            ", Last Known Location: " + lastKnownLocation.getName();
+            ", Last Known Location: " + getLocations();
+     }
+
+     //helper function for getLogDetails
+     public String getLocations(){
+        if(this.getLastKnownLocation() == null){
+            return "No Location Provided";
+        }
+        else{
+            return lastKnownLocation.getName();
+        }
      }
 }

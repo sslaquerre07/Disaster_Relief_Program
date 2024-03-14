@@ -10,7 +10,7 @@ public class InquiryTest {
     private String validDate = "2024-02-10";
     private String invalidDate = "2024/02/10";
     private String expectedInfoProvided = "Looking for family member";
-    private String expectedLogDetails = "Inquirer: John, Missing Person: Jane Alex, Date of Inquiry: 2024-02-10, Info Provided: Looking for family member, Last Known Location: University of Calgary";
+    private String expectedLogDetails = "Missing Person: Jane Alex, Date of Inquiry: 2024-02-10, Info Provided: Looking for family member, Last Known Location: University of Calgary";
 
     @Before
     public void setUp() {

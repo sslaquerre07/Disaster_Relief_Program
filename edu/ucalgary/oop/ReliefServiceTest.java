@@ -38,7 +38,7 @@ public class ReliefServiceTest{
         DisasterVictim victim = new DisasterVictim("Brad", "2022-07-04", 12);
         String dateOfInquiry = "2023-08-09";
         String infoProvided = "Looking for family members";
-        reliefService.addInquiries(victim, dateOfInquiry, infoProvided);
+        reliefService.addInquiry(victim, dateOfInquiry, infoProvided);
         ArrayList<Inquiry> expectedValue = new ArrayList<Inquiry>();
         expectedValue.add(new Inquiry(victim, dateOfInquiry, infoProvided));
         boolean correct = false;
@@ -58,6 +58,17 @@ public class ReliefServiceTest{
     //Come back to this one with more time!!
     @Test
     public void testGetLogDetails() {
-        //TODO ON THURSDAY
+        //Assume the default inquirer is used
+        DisasterVictim victim = new DisasterVictim("Brad", "2022-07-04", 12);
+        String dateOfInquiry = "2023-08-09";
+        String infoProvided = "Looking for family members";
+        reliefService.addInquiry(victim, dateOfInquiry, infoProvided);
+
+        String actualString = reliefService.getLogDetails();
+        String expectedString = "Inquirer: " + reliefService.getInquirer() + "\n"
+                                + reliefService.getInquiries().get(0).getLogDetails() + "\n";
+        
+        assertTrue("Should get the log details correctly", actualString.equals(expectedString));
+
     }
 }
