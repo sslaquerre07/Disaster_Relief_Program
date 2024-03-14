@@ -106,6 +106,7 @@ public class LocationTest {
 
     @Test 
     public void testVictimAllocatedSupplies() {
+        //Tests the other version of remove supply, with the victim to allocate the supplies to
         location.addSupply(supply); //Ensure the supply is added first
         location.removeSupply(supply, victim);
         assertTrue("Victim should now have the allocated supply from the location", victim.getPersonalBelongings().contains(supply));

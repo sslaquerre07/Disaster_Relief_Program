@@ -84,6 +84,7 @@ public class DisasterVictimTest {
 
     @Test
     public void testSetDateOfBirthWithAgeSet(){
+        //Should make the age null
         String newDateOfBirth = "1987-05-21";
         victim.setDateOfBirth(newDateOfBirth);
         assertEquals("setDateOfBirth should correctly update the date of birth", newDateOfBirth, victim.getDateOfBirth());
@@ -216,6 +217,7 @@ public class DisasterVictimTest {
     /*Family Connection Related Tests */
     @Test
     public void testAddFamilyConnection() {
+        //Tests standard family connection
         DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 12);
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 30);
 
@@ -235,6 +237,7 @@ public class DisasterVictimTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddFamilyConnectionDuplicate(){
+        //RelationshipJaneJohn and RelationshipJohnJane are arbitrary
         DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 12);
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 15);
 
@@ -446,6 +449,7 @@ public class DisasterVictimTest {
             }
         }
         assertTrue("setMedicalRecords should correctly update medical records", correct);
+        //Note: Setting a Medical Record with an invalid date is tested in the medical record class, so no need to do it here
     }
     /*End of Medical Records Related Tests */
 

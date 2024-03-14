@@ -46,11 +46,12 @@ public class ReliefService extends UserInteraction implements InquiryLogging{
     }
 
     @Override
-    public void logInquiry(Inquiry inquiry) {
+    public Inquiry logInquiry(Inquiry inquiry) {
         // TODO Auto-generated method stub
         //Terminal input methods here
         //Possibly store the input in a database?
         //Add it to the inquiries list for this inquirer
+        return inquiry;
     }
 
     @Override

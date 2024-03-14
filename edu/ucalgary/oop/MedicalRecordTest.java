@@ -22,6 +22,11 @@ public class MedicalRecordTest {
     public void testObjectCreation() {
         assertNotNull(medicalRecord);
     }	
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithInvalidDate(){
+        MedicalRecord newRecord = new MedicalRecord(expectedLocation, expectedTreatmentDetails, inValidDateOfTreatment);
+    }
 	
     @Test
     public void testGetLocation() {
