@@ -71,4 +71,20 @@ public class ReliefServiceTest{
         assertTrue("Should get the log details correctly", actualString.equals(expectedString));
 
     }
+
+    @Test
+    public void testSearchVictim(){
+        DisasterVictim victim1 = new DisasterVictim("Praveen", "2022-09-09", 11);
+        DisasterVictim victim2 = new DisasterVictim("Oprah", "2022-09-09", 11);
+        //Not implemented yet, but in theory add victims to the database to be able to retrieve them
+
+        boolean correct = false;
+        //Searches and returns an array of the results
+        ArrayList<DisasterVictim> results = reliefService.searchVictim("Pra");
+        if(results.contains(victim1) && results.contains(victim2)){
+            correct = true;
+        }
+
+        assertTrue("The search results should both contain Oprah and Praveen", correct);
+    }
 }

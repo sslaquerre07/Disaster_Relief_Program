@@ -54,10 +54,11 @@ public class ReliefService extends UserInteraction implements InquiryLogging{
     }
 
     @Override
-    public void searchVictim() {
+    public ArrayList<DisasterVictim> searchVictim(String searchTerm) {
         // TODO Auto-generated method stub
         //Terminal input methods here
         //Return all Disaster victims(how??) and either display or return them as needed.
+        return new ArrayList<>();
         
     }
 
