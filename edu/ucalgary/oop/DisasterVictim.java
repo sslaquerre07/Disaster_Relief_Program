@@ -215,6 +215,7 @@ public class DisasterVictim implements FileAccess{
             String line = reader.readLine();
             while(line != null){
                 fileContents.add(line);
+                line.trim();
                 line = reader.readLine(); 
             }
             reader.close();
