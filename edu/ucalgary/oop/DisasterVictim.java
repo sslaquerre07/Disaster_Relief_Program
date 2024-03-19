@@ -199,29 +199,30 @@ public class DisasterVictim implements FileAccess{
         for(int i = 0; i < currentRelations.size(); i++){
             for(int j = i+1; j<currentRelations.size(); j++){
                 FamilyRelation connectionsOuter = currentRelations.get(i);
-                
+                FamilyRelation connectionsInner = currentRelations.get(j);
 
                 //See if there are two relations with the same relationshipTo
                 if(connectionsInner.getRelationshipTo().equals(connectionsOuter.getRelationshipTo()) && connectionsInner != connectionsOuter){
                     DisasterVictim victim1;
+                    DisasterVictim victim2;
                     if(connectionsInner.getPersonOne() != this){
                         victim1 = connectionsInner.getPersonOne();
                     }
                     else{
                         victim1 = connectionsInner.getPersonTwo();
                     }
-                    DisasterVictim victim2;
                     if(connectionsOuter.getPersonOne() != this){
-                        victim2 = connectionsInner.getPersonOne();
+                        victim2 = connectionsOuter.getPersonOne();
                     }
                     else{
-                        victim2 = connectionsInner.getPersonTwo();
+                        victim2 = connectionsOuter.getPersonTwo();
                     }
 
                     //Check if a relationship between the two exists or not
                     if(checkValidFamilyConnection(victim2, victim1)){
                         //Add the new relation
                         FamilyRelation newRelation = new FamilyRelation(victim1, connectionsInner.getRelationshipTo(), victim2);
+                        System.out.println(victim1 == victim2);
                         victim1.getFamilyConnections().add(newRelation);
                         victim2.getFamilyConnections().add(newRelation);
                     }
