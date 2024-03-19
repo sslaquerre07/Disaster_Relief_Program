@@ -153,8 +153,18 @@ public class DisasterVictim implements FileAccess{
         this.setPersonalBelongings(updatedBelongings);
     }
 
-    public void removeFamilyConnection(FamilyRelation exRelation) {
-        this.familyConnections.remove(exRelation);
+    public void removeFamilyConnection(DisasterVictim relativeToBeRemoved) {
+        for(int i = 0; i < this.getFamilyConnections().size(); i++){
+            FamilyRelation relation = this.getFamilyConnections().get(0);
+            if(relation.getPersonOne() != this && relation.getPersonOne() == relativeToBeRemoved){
+                this.getFamilyConnections().remove(relation);
+                relativeToBeRemoved.getFamilyConnections().remove(relation);
+            }
+            else if(relation.getPersonTwo() != this && relation.getPersonTwo() == relativeToBeRemoved){
+                this.getFamilyConnections().remove(relation);
+                relativeToBeRemoved.getFamilyConnections().remove(relation);
+            }
+        }
     }
 
     public void addFamilyConnection(DisasterVictim relative, String relationshipTo) {
@@ -178,6 +188,7 @@ public class DisasterVictim implements FileAccess{
 
     private boolean checkValidFamilyConnection(DisasterVictim newRelative, DisasterVictim originalRelative){
         ArrayList<DisasterVictim> relatives = new ArrayList<>();
+        //Populates a list of all relatives
         for(FamilyRelation connection : originalRelative.getFamilyConnections()){
             if(connection.getPersonOne() == originalRelative){
                 relatives.add(connection.getPersonTwo());
@@ -186,11 +197,19 @@ public class DisasterVictim implements FileAccess{
                 relatives.add(connection.getPersonOne());
             }
         }
+        //Compares to see if relationship already exists or not
         for (DisasterVictim relative: relatives){
             if(relative == newRelative){
                 return false;
             }
         }
+
+        //Sees if the relationship consists of the same two people
+        if(newRelative == originalRelative){
+            return false;
+        }
+
+        //If it passed the rest, then it is a valid connection!
         return true;
     }
 

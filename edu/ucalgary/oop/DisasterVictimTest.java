@@ -278,7 +278,6 @@ public class DisasterVictimTest {
         if((testFamilySibling1.size() == 2) && (testFamilySibling2.size() == 2) && (testFamilySibling3.size() == 2)){
             correct = true;
         }
-        System.out.println(testFamilySibling1.size() + "\n" + testFamilySibling2.size() + "\n" + testFamilySibling3.size());
         assertTrue("The second add Family connection should also connect siblings 1 and 3", correct);
     }
 
@@ -287,11 +286,24 @@ public class DisasterVictimTest {
         DisasterVictim victim = new DisasterVictim("Freda", "2024-01-23", 20);
         DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 18);
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 19);
+        FamilyRelation relation1 = new FamilyRelation(victim, "sibling", victim1);
+        FamilyRelation relation2 = new FamilyRelation(victim, "sibling", victim2);
+        ArrayList<FamilyRelation> originalRelations = new ArrayList<>(Arrays.asList(relation1, relation2));
+        victim.setFamilyConnections(originalRelations);
 
-        victim.addFamilyConnection(victim1, "sibling");
-        victim.addFamilyConnection(victim2, "sibling");
-        //Change the remove function to operate on disastervictims
-        //Rest of test to be completed
+        victim.removeFamilyConnection(victim1);
+
+        ArrayList<FamilyRelation> testFamily = victim.getFamilyConnections();
+        boolean correct = true;
+
+        int i;
+        //Looks for relation1 as it should have been deleted
+        for (i = 0; i < testFamily.size(); i++) {
+            if (testFamily.get(i) == relation1) {
+                correct = false;
+            }
+        }
+        assertTrue("removeFamilyConnection should remove the family member", correct);
     }
 
     @Test 
@@ -302,8 +314,7 @@ public class DisasterVictimTest {
         //This next line was tested in a previous test, but this should also add the connection in victim2
         victim1.addFamilyConnection(victim2, "sibling");
         //Since the connection was added in victim2, we should be able to remove it in victim2
-        //Again, modify the relation remover to work properly
-        // victim2.removeFamilyConnection(relation1);
+        victim2.removeFamilyConnection(victim1);
         //Check if victim1's family relations are empty now that we removed the connection
         assertEquals("Removing the connection should remove the relation from both parties", victim1.getFamilyConnections().size(), 0);
     }
