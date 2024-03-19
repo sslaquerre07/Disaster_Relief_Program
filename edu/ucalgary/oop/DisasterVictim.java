@@ -1,9 +1,10 @@
 package edu.ucalgary.oop;
 
 import java.util.ArrayList;
+import java.io.*;
 
 
-public class DisasterVictim {
+public class DisasterVictim implements FileAccess{
     private static int counter = 0;
 
     private String firstName;
@@ -190,10 +191,38 @@ public class DisasterVictim {
     }
 
     public void setGender(String gender) {
-        if (!gender.matches("(?i)^(male|female|other)$")) {
-            throw new IllegalArgumentException("Invalid gender. Acceptable values are male, female, or other.");
+        if (!validGender(gender)) {
+            throw new IllegalArgumentException("Invalid gender.");
         }
         this.gender = gender.toLowerCase(); // Store in a consistent format
+    }
+
+    private boolean validGender(String gender){
+        ArrayList<String> validGenders = readFileLines("edu\\ucalgary\\oop\\GenderOptions.txt");
+        for(String gender1: validGenders){
+            if(gender1.equals(gender)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ArrayList<String> readFileLines(String URL){
+        ArrayList<String> fileContents = new ArrayList<>();
+        BufferedReader reader;
+        try{
+            reader = new BufferedReader(new FileReader(URL));
+            String line = reader.readLine();
+            while(line != null){
+                fileContents.add(line);
+                line = reader.readLine(); 
+            }
+            reader.close();
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+        return fileContents;
     }
 
    
