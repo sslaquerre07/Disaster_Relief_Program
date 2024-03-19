@@ -236,13 +236,10 @@ public class DisasterVictimTest {
         DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 12);
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 15);
 
-        FamilyRelation relation1 = new FamilyRelation(victim2, "sibling", victim1);
-        FamilyRelation relation2 = new FamilyRelation(victim1, "sibling", victim2);
-
         //This line should be fine
-        victim1.addFamilyConnection(relation1);
+        victim1.addFamilyConnection(victim2, "sibling");
         //Relation should already be added, therefore causing an error for duplicate data.
-        victim2.addFamilyConnection(relation2);
+        victim2.addFamilyConnection(victim1, "sibling");
     }
 
     @Test
@@ -251,8 +248,7 @@ public class DisasterVictimTest {
         DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 12);
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 30);
 
-        FamilyRelation relation = new FamilyRelation(victim2, "parent", victim1);
-        victim2.addFamilyConnection(relation);
+        victim2.addFamilyConnection(victim1, "parent");
 
         ArrayList<FamilyRelation> testFamilyParentSide = victim2.getFamilyConnections();
         ArrayList<FamilyRelation> testFamilyChildSide = victim1.getFamilyConnections();
@@ -271,10 +267,8 @@ public class DisasterVictimTest {
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 13);
         DisasterVictim victim3 = new DisasterVictim("Jack", "2024-01-22", 16);
 
-        FamilyRelation relation = new FamilyRelation(victim2, "sibling", victim1);
-        FamilyRelation relation2 = new FamilyRelation(victim2, "sibling", victim3);
-        victim2.addFamilyConnection(relation);
-        victim2.addFamilyConnection(relation2);
+        victim2.addFamilyConnection(victim1, "sibling");
+        victim2.addFamilyConnection(victim3, "sibling");
 
         ArrayList<FamilyRelation> testFamilySibling1 = victim1.getFamilyConnections();
         ArrayList<FamilyRelation> testFamilySibling2 = victim2.getFamilyConnections();
@@ -284,34 +278,20 @@ public class DisasterVictimTest {
         if((testFamilySibling1.size() == 2) && (testFamilySibling2.size() == 2) && (testFamilySibling3.size() == 2)){
             correct = true;
         }
+        System.out.println(testFamilySibling1.size() + "\n" + testFamilySibling2.size() + "\n" + testFamilySibling3.size());
         assertTrue("The second add Family connection should also connect siblings 1 and 3", correct);
     }
 
     @Test
     public void testRemoveFamilyConnection() {
+        DisasterVictim victim = new DisasterVictim("Freda", "2024-01-23", 20);
         DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 18);
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 19);
-        FamilyRelation relation1 = new FamilyRelation(victim, "sibling", victim1);
-        FamilyRelation relation2 = new FamilyRelation(victim, "sibling", victim2);
-        ArrayList<FamilyRelation> originalRelations = new ArrayList<>(Arrays.asList(relation1, relation2));
-        victim.setFamilyConnections(originalRelations);
 
-        DisasterVictim victim = new DisasterVictim("Freda", "2024-01-23", 20);
-        victim.addFamilyConnection(relation1);
-        victim.addFamilyConnection(relation2);
-        victim.removeFamilyConnection(relation1);
-
-        ArrayList<FamilyRelation> testFamily = victim.getFamilyConnections();
-        boolean correct = true;
-
-        int i;
-        //Looks for relation1 as it should have been deleted
-        for (i = 0; i < testFamily.size(); i++) {
-            if (testFamily.get(i) == relation1) {
-                correct = false;
-            }
-        }
-        assertTrue("removeFamilyConnection should remove the family member", correct);
+        victim.addFamilyConnection(victim1, "sibling");
+        victim.addFamilyConnection(victim2, "sibling");
+        //Change the remove function to operate on disastervictims
+        //Rest of test to be completed
     }
 
     @Test 
@@ -319,11 +299,11 @@ public class DisasterVictimTest {
         //If person 1 and 2 are related, removing the connection from on person 1 should also remove the connection on person 2
         DisasterVictim victim1 = new DisasterVictim("Jane", "2024-01-20", 25);
         DisasterVictim victim2 = new DisasterVictim("John", "2024-01-22", 24);
-        FamilyRelation relation1 = new FamilyRelation(victim1, "sibling", victim2);
         //This next line was tested in a previous test, but this should also add the connection in victim2
-        victim1.addFamilyConnection(relation1);
+        victim1.addFamilyConnection(victim2, "sibling");
         //Since the connection was added in victim2, we should be able to remove it in victim2
-        victim2.removeFamilyConnection(relation1);
+        //Again, modify the relation remover to work properly
+        // victim2.removeFamilyConnection(relation1);
         //Check if victim1's family relations are empty now that we removed the connection
         assertEquals("Removing the connection should remove the relation from both parties", victim1.getFamilyConnections().size(), 0);
     }

@@ -119,10 +119,7 @@ public class DisasterVictim implements FileAccess{
     
     // Correct the setters to accept Lists instead of arrays
     public void setFamilyConnections(ArrayList<FamilyRelation> connections) {
-        this.familyConnections.clear();
-        for (FamilyRelation newRecord : connections) {
-            addFamilyConnection(newRecord);
-        }
+        this.familyConnections = connections;
     }
 
     public void setMedicalRecords(ArrayList<MedicalRecord> records) {
@@ -157,11 +154,80 @@ public class DisasterVictim implements FileAccess{
     }
 
     public void removeFamilyConnection(FamilyRelation exRelation) {
-        familyConnections.remove(exRelation);
+        this.familyConnections.remove(exRelation);
     }
 
-    public void addFamilyConnection(FamilyRelation record) {
-        familyConnections.add(record);
+    public void addFamilyConnection(DisasterVictim relative, String relationshipTo) {
+        //Creates a new relationship object with the information provided
+        ArrayList<FamilyRelation> currentRelations = this.getFamilyConnections();
+        FamilyRelation newConnection = new FamilyRelation(this, relationshipTo, relative);
+
+        //Checks if the family relation is valid(SamPeace vs PeaceSam)
+        if(!this.checkValidFamilyConnection(relative, this)){
+            throw new IllegalArgumentException("Invalid Relation");
+        }
+
+        //Adds relationship to both participating members
+        this.familyConnections.add(newConnection);
+        relative.getFamilyConnections().add(newConnection);
+
+        //Relationship cascades to other family members
+        this.cascadeConnections(currentRelations);
+
+    }
+
+    private boolean checkValidFamilyConnection(DisasterVictim newRelative, DisasterVictim originalRelative){
+        ArrayList<DisasterVictim> relatives = new ArrayList<>();
+        for(FamilyRelation connection : originalRelative.getFamilyConnections()){
+            if(connection.getPersonOne() == originalRelative){
+                relatives.add(connection.getPersonTwo());
+            }
+            else{
+                relatives.add(connection.getPersonOne());
+            }
+        }
+        for (DisasterVictim relative: relatives){
+            if(relative == newRelative){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void cascadeConnections(ArrayList<FamilyRelation> currentRelations){
+        //Iterate and compare all relations to each other
+        for(int i = 0; i < currentRelations.size(); i++){
+            for(int j = i+1; j<currentRelations.size(); j++){
+                FamilyRelation connectionsOuter = currentRelations.get(i);
+                
+
+                //See if there are two relations with the same relationshipTo
+                if(connectionsInner.getRelationshipTo().equals(connectionsOuter.getRelationshipTo()) && connectionsInner != connectionsOuter){
+                    DisasterVictim victim1;
+                    if(connectionsInner.getPersonOne() != this){
+                        victim1 = connectionsInner.getPersonOne();
+                    }
+                    else{
+                        victim1 = connectionsInner.getPersonTwo();
+                    }
+                    DisasterVictim victim2;
+                    if(connectionsOuter.getPersonOne() != this){
+                        victim2 = connectionsInner.getPersonOne();
+                    }
+                    else{
+                        victim2 = connectionsInner.getPersonTwo();
+                    }
+
+                    //Check if a relationship between the two exists or not
+                    if(checkValidFamilyConnection(victim2, victim1)){
+                        //Add the new relation
+                        FamilyRelation newRelation = new FamilyRelation(victim1, connectionsInner.getRelationshipTo(), victim2);
+                        victim1.getFamilyConnections().add(newRelation);
+                        victim2.getFamilyConnections().add(newRelation);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -171,6 +237,9 @@ public class DisasterVictim implements FileAccess{
     }
 
     public void addDietaryRestriction(DietaryRestriction restriction){
+        if(this.dietaryRestrictions.contains(restriction)){
+            throw new IllegalArgumentException("Restriction already listed");
+        }
         this.dietaryRestrictions.add(restriction);
     }
 
