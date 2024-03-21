@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
-public class ReliefService extends DBAccess implements InquiryLogging{
+public class ReliefService extends DBAccess{
     private Inquirer inquirer;
     private ArrayList<Inquiry> inquiries = new ArrayList<Inquiry>(); //Initialized
 
@@ -46,24 +46,6 @@ public class ReliefService extends DBAccess implements InquiryLogging{
 
     public void printLogDetails(){
         System.out.println(getLogDetails());
-    }
-
-    @Override
-    public Inquiry logInquiry(Inquiry inquiry) {
-        // TODO Auto-generated method stub
-        //Terminal input methods here
-        //Possibly store the input in a database?
-        //Add it to the inquiries list for this inquirer
-        return inquiry;
-    }
-
-    @Override
-    public ArrayList<DisasterVictim> searchVictim(String searchTerm) {
-        // TODO Auto-generated method stub
-        //Terminal input methods here
-        //Return all Disaster victims(how??) and either display or return them as needed.
-        return new ArrayList<>();
-        
     }
 
     //Add Inquirer to DB

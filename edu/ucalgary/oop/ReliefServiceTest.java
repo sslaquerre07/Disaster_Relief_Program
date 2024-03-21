@@ -66,29 +66,4 @@ public class ReliefServiceTest{
         assertTrue("Should get the log details correctly", actualString.equals(expectedString));
 
     }
-
-    @Test
-    public void testSearchVictim(){
-        DisasterVictim victim1 = new DisasterVictim("Praveen", "2022-09-09", 11);
-        DisasterVictim victim2 = new DisasterVictim("Oprah", "2022-09-09", 11);
-        //Not implemented yet, but in theory add victims to the database to be able to retrieve them
-
-        boolean correct = false;
-        //Searches and returns an array of the results
-        ArrayList<DisasterVictim> results = reliefService.searchVictim("Pra");
-        if(results.contains(victim1) && results.contains(victim2)){
-            correct = true;
-        }
-
-        assertTrue("The search results should both contain Oprah and Praveen", correct);
-    }
-
-    @Test
-    public void testInquiryLogging(){
-        DisasterVictim victim1 = new DisasterVictim("Praveen", "2022-09-09", 11);
-        Inquiry newInquiry = new Inquiry(victim1, "2022-08-01", "Basic Info");
-        //In future implementation, the method will go through some try and catch blocks and if it works successfully,
-        //it will return the original inquiry that was passed in.
-        assertEquals("Logging this should return the original inquiry", newInquiry, reliefService.logInquiry(newInquiry));
-    }
 }
