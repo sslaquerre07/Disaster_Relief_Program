@@ -12,21 +12,16 @@ public class DBAccess {
 
     //Constructor
     public DBAccess(){
-
-    }
-
-    //Create a connection with your database, use try catch to handle any errors
-    public void createConnection(){
         try{
             dbConnect = DriverManager.getConnection("jdbc:postgresql://localhost/ensf380project", "oop", "ucalgary");
         }
         catch(SQLException e){
             e.printStackTrace();
-        }
+        } 
     }
 
     //Sets the inquirer results variable to the current results from the DB
-    public void retrieveInquirers(){
+    protected void retrieveInquirers(){
         try{
             Statement selectInquirers = dbConnect.createStatement();
             inquirerResults = selectInquirers.executeQuery("select * from inquirer");
@@ -37,7 +32,7 @@ public class DBAccess {
     }
 
     //Sets the inquiryLog results variable to the current results from the DB
-    public void retrieveInquiryLogResults(){
+    protected void retrieveInquiryLogResults(){
         try{
             Statement selectInquiryLog = dbConnect.createStatement();
             inquiryLogResults = selectInquiryLog.executeQuery("select * from inquiry_log");
@@ -119,7 +114,6 @@ public class DBAccess {
     public static void main(String[] args) {
         DBAccess myJBDC = new DBAccess();
         //1. Create connection
-        myJBDC.createConnection();
         myJBDC.retrieveInquiryLogResults();
 
         String allInquirers = myJBDC.getInquiryLog();

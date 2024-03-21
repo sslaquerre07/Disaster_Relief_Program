@@ -1,13 +1,16 @@
 package edu.ucalgary.oop;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
-public class ReliefService extends UserInteraction implements InquiryLogging{
+public class ReliefService extends DBAccess implements InquiryLogging{
     private Inquirer inquirer;
     private ArrayList<Inquiry> inquiries = new ArrayList<Inquiry>(); //Initialized
 
     // Constructor
     public ReliefService(Inquirer inquirer) {
+        super();
         this.inquirer = inquirer;
     }
 
@@ -63,9 +66,32 @@ public class ReliefService extends UserInteraction implements InquiryLogging{
         
     }
 
-    @Override
-    public <T> void getTerminalInput() {
-        // TODO Auto-generated method stub
-        super.getTerminalInput();
+    //Add Inquirer to DB
+    public void addInquirerToDB(){
+        try{
+            //Not completely working, but the logic is there just need to figure out the pkey id conflict
+            String query = "INSERT INTO inquirer (firstname, lastname, phonenumber) VALUES (?, ?, ?)";
+            PreparedStatement addedInquirer = dbConnect.prepareStatement(query);
+            addedInquirer.setString(1, this.getInquirer().getFirstName());
+            addedInquirer.setString(2, this.getInquirer().getLastName());
+            addedInquirer.setString(3, this.getInquirer().getServicesPhoneNum());
+            addedInquirer.executeUpdate();
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        
+    }
+
+    //Used in addInquiry()
+    private void addInquiryToDB(){
+
+    }
+
+    public static void main(String[] args) {
+        Inquirer inquirer = new Inquirer("John", "Alex", "123-456-7890", "Looking for family member");
+        ReliefService reliefService = new ReliefService(inquirer);
+        reliefService.addInquirerToDB();
+        reliefService.close();
     }
 }
