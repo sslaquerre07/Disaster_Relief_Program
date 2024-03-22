@@ -176,6 +176,14 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         backHomeButton = new JButton("Home");
         submitMRInfoButton = new JButton("Submit");
 
+        //Add all listeners
+        nameInput.addMouseListener(this);
+        addressInput.addMouseListener(this);
+        treatmentInput.addMouseListener(this);
+        dateOfTreatmentInput.addMouseListener(this);
+        backHomeButton.addActionListener(this);
+        submitMRInfoButton.addActionListener(this);
+
         //Create all panels
         JPanel headerPanel = new JPanel(new FlowLayout());
         JPanel contentPanel = new JPanel(new GridLayout(3, 1));
@@ -224,9 +232,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
         ArrayList<FamilyRelation> familyRelations = new ArrayList<>();
         DisasterVictim victim;
+        //All navigational buttons
         if(event.getSource() == medicalRecordsButton){
             cardLayout.show(cardPanel, "medical");
         }
+        if(event.getSource() == backHomeButton){
+            cardLayout.show(cardPanel, "main");
+        }
+
+        //All information retrieving buttons
         if(event.getSource() == submitInfo){
             String fName = fnInput.getText();
             String lName = lnInput.getText();
@@ -266,6 +280,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
             victim.setFamilyConnections(familyRelations);
             victim.setMedicalRecords(medicalRecords);
             System.out.println(comments);
+            System.exit(0);
         }
     }
 
