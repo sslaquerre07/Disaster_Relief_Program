@@ -228,6 +228,12 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
     }
 
     public void actionPerformed(ActionEvent event){
+        /*Brief summary of what it's doing right now
+         * There is no instruction for how to check a stored location
+         * so we're just creating a new instance for every time you 
+         * utilize the interface!!
+         */
+        
         //Create the DisasterVictim based on the info entered
         ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
         ArrayList<FamilyRelation> familyRelations = new ArrayList<>();
@@ -242,6 +248,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
 
         //All information retrieving buttons
         if(event.getSource() == submitInfo){
+            boolean validInfo = true;
             String fName = fnInput.getText();
             String lName = lnInput.getText();
             Integer age = (Integer) ageSpinner.getValue();
@@ -253,34 +260,80 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String formattedDate = currenDate.format(formatter);
 
-            if(dateOfBirth.equals("") || dateOfBirth.equals("e.g 2004-01-09")){
+            //Either age or dateofBirth
+            if(dateOfBirth.equals("") || dateOfBirth.equals("e.g 2004-01-09") || !DisasterVictim.isValidDateFormat(dateOfBirth)){
                 victim = new DisasterVictim(fName, formattedDate, age);
-                if(!lName.equals("") && !lName.equals("e.g Gale")){
-                    victim.setLastName(lName);
-                }
-                if(!gender.equals("") && !gender.equals("e.g male")){
-                    victim.setGender(gender);
-                }
-                if(!comments.equals("") && !comments.equals("e.g Lost in flood")){
-                    victim.setComments(comments);
-                }
             }
             else{
                 victim = new DisasterVictim(fName, formattedDate, dateOfBirth);
-                if(!lName.equals("") && !lName.equals("e.g Gale")){
-                    victim.setLastName(lName);
-                }
-                if(!gender.equals("") && !gender.equals("e.g male")){
-                    victim.setGender(gender);
-                }
-                if(!comments.equals("") && !comments.equals("e.g Lost in flood")){
-                    victim.setComments(comments);
-                }
+            }
+            //Data validation
+            if(!lName.trim().equals("") && !lName.trim().equals("e.g Gale")){
+                victim.setLastName(lName);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid last name");
+                validInfo = false;
+            }
+            if(!gender.trim().equals("") && !gender.trim().equals("e.g male") && victim.validGender(gender)){
+                victim.setGender(gender);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid gender");
+                validInfo = false;
+            }
+            if(!comments.trim().equals("") && !comments.trim().equals("e.g Lost in flood")){
+                victim.setComments(comments);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid comments");
+                validInfo = false;
             }
             victim.setFamilyConnections(familyRelations);
             victim.setMedicalRecords(medicalRecords);
-            System.out.println(comments);
-            System.exit(0);
+            if(validInfo){
+                JOptionPane.showMessageDialog(this, "DisasterVictim created successfully!");
+                System.exit(0);
+            }
+        }
+
+        if(event.getSource() == submitMRInfoButton){
+            boolean validData = true;
+            Location location = null;
+            String locationName = nameInput.getText();
+            String locationAddress = addressInput.getText();
+            String treatmentDetailString = treatmentInput.getText();
+            String dateOfTreatmentString = dateOfTreatmentInput.getText();
+
+            //Confirmation of Location
+            if(!locationName.trim().equals("") && !locationName.trim().equals("e.g Telus Spark Centre")){
+                if(!locationAddress.trim().equals("") && !locationAddress.trim().equals("e.g 123 Sesame Street")){
+                    location = new Location(locationName, locationAddress);
+                }
+                else{
+                    JOptionPane.showMessageDialog(this, "Invalid Location Address");
+                    validData = false;
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid Location Name");
+                validData = false;
+            }
+            //Validity of inputs
+            if(treatmentDetailString.trim().equals("") || treatmentDetailString.trim().equals("e.g Wrist Surgery")){
+                JOptionPane.showMessageDialog(this, "Invalid treatment details");
+                validData = false;
+            }
+            if(dateOfTreatmentString.trim().equals("") || dateOfTreatmentString.trim().equals("e.g 2022-09-09") || !DisasterVictim.isValidDateFormat(dateOfTreatmentString)){
+                JOptionPane.showMessageDialog(this, "Invalid treatment date");
+                validData = false;
+            }
+            //Adds it to the arrayList if all inputs are valid
+            if(validData && location != null){
+                medicalRecords.add(new MedicalRecord(location, treatmentDetailString, dateOfTreatmentString));
+                JOptionPane.showMessageDialog(this, "Medical Record created and added successfully");
+                cardLayout.show(cardPanel, "main");
+            }
         }
     }
 

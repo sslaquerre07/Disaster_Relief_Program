@@ -50,7 +50,7 @@ public class DisasterVictim implements FileAccess{
         return counter;
     }
 
-    private static boolean isValidDateFormat(String date) {
+    public static boolean isValidDateFormat(String date) {
         String dateFormatPattern = "^\\d{4}-\\d{2}-\\d{2}$";
         return date.matches(dateFormatPattern);
     }
@@ -286,7 +286,7 @@ public class DisasterVictim implements FileAccess{
         this.gender = gender.toLowerCase(); // Store in a consistent format
     }
 
-    private boolean validGender(String gender){
+    public boolean validGender(String gender){
         ArrayList<String> validGenders = readFileLines("edu\\ucalgary\\oop\\GenderOptions.txt");
         for(String gender1: validGenders){
             if(gender1.equals(gender)){
