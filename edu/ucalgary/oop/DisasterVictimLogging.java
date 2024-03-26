@@ -53,10 +53,32 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
     private JTextField dateOfTreatmentInput;
 
     //Buttons for medical record page
-    private JButton backHomeButton;
+    private JButton backHomeButtonMR;
     private JButton submitMRInfoButton;
 
     /*Family Relations page variables */
+
+    //Labels for the family relations page
+    private JLabel fnLabelFR;
+    private JLabel lnLabelFR;
+    private JLabel ageLabelFR;
+    private JLabel dobLabelFR;
+    private JLabel genderLabelFR;
+    private JLabel commentsLabelFR;
+    private JLabel relationshipToLabel;
+
+    //Input titles for main page
+    private JTextField fnInputFR;
+    private JTextField lnInputFR;
+    private JSpinner ageSpinnerFR;
+    private JTextField dobInputFR;
+    private JTextField genderInputFR;
+    private JTextField commentsInputFR;
+    private JTextField relationshipToInput;
+
+    //Extra button for relations
+    private JButton backHomeButtonFR; 
+    private JButton submitRelations;
 
 
     public DisasterVictimLogging(){
@@ -76,6 +98,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         //Add all pages to the card panel:
         cardPanel.add(this.setupMain(), "main");
         cardPanel.add(this.medicalRecordPage(), "medical");
+        cardPanel.add(this.familyRelationsPage(), "relation");
 
         //Add cardPanel to the main panel
         getContentPane().add(cardPanel);
@@ -158,7 +181,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         return mainPanel;
     }
 
-    public JPanel medicalRecordPage(){
+    private JPanel medicalRecordPage(){
         //Set all labels
         locationLabel = new JLabel("Please enter all location details here: ");
         nameLabel = new JLabel("Name");
@@ -173,7 +196,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         dateOfTreatmentInput = new JTextField("e.g 2022-09-09", 15);
 
         //Create all buttons
-        backHomeButton = new JButton("Home");
+        backHomeButtonMR = new JButton("Home");
         submitMRInfoButton = new JButton("Submit");
 
         //Add all listeners
@@ -181,7 +204,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         addressInput.addMouseListener(this);
         treatmentInput.addMouseListener(this);
         dateOfTreatmentInput.addMouseListener(this);
-        backHomeButton.addActionListener(this);
+        backHomeButtonMR.addActionListener(this);
         submitMRInfoButton.addActionListener(this);
 
         //Create all panels
@@ -214,7 +237,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         contentPanel.add(sub2);
 
         //Create buttonsPanel
-        buttonPanel.add(backHomeButton);
+        buttonPanel.add(backHomeButtonMR);
         buttonPanel.add(submitMRInfoButton);
 
         //Create final panel
@@ -227,6 +250,84 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         return medicalRecordPanel;
     }
 
+    private JPanel familyRelationsPage(){
+        title = new JLabel("Family Relations Page");
+
+        //Set all labels
+        fnLabelFR = new JLabel("First Name: ");
+        lnLabelFR = new JLabel("Last Name:(Optional) ");
+        ageLabelFR = new JLabel("Approx age(Choose either this or date of birth): ");
+        dobLabelFR = new JLabel("Date of Birth: ");
+        genderLabelFR = new JLabel("Enter your gender:(Optional) ");
+        commentsLabelFR = new JLabel("Any additional comments:(Optional) ");
+        relationshipToLabel = new JLabel("Relationship to the victim");
+
+        //Sets all input titles
+        fnInputFR = new JTextField("e.g Dorothy", 15); 
+        lnInputFR = new JTextField("e.g Gale", 15);
+        SpinnerModel ageModel = new SpinnerNumberModel(18, 0, 150, 1);
+        ageSpinnerFR = new JSpinner(ageModel);
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(ageSpinnerFR, "#");
+        ageSpinnerFR.setEditor(editor);
+        dobInputFR = new JTextField("e.g 2004-01-09", 15);
+        genderInputFR = new JTextField("e.g male", 15);
+        commentsInputFR = new JTextField("e.g Lost in flood", 15);
+        relationshipToInput = new JTextField("e.g sibling");
+
+        //Adds mouse listeners
+        fnInputFR.addMouseListener(this);
+        lnInputFR.addMouseListener(this);
+        ageSpinnerFR.addMouseListener(this);
+        dobInputFR.addMouseListener(this);
+        genderInputFR.addMouseListener(this);
+        commentsInputFR.addMouseListener(this);
+
+        //Add Button
+        submitRelations = new JButton("Submit");
+        backHomeButtonFR = new JButton("Home");
+
+        //Add Button Listeners
+        submitRelations.addActionListener(this);
+        backHomeButtonFR.addActionListener(this);
+
+        //Panels for the home page
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new FlowLayout());
+        JPanel titlePanel = new JPanel(new GridLayout(7,1));
+        JPanel inputPanel = new JPanel(new GridLayout(7,1));
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1));
+        JPanel submitPanel = new JPanel();
+        submitPanel.setLayout(new FlowLayout());
+
+        //Adding all of the components
+        headerPanel.add(title);
+        titlePanel.add(fnLabelFR);
+        titlePanel.add(lnLabelFR);
+        titlePanel.add(ageLabelFR);
+        titlePanel.add(dobLabelFR);
+        titlePanel.add(genderLabelFR);
+        titlePanel.add(commentsLabelFR);
+        titlePanel.add(relationshipToLabel);
+        inputPanel.add(fnInputFR);
+        inputPanel.add(lnInputFR);
+        inputPanel.add(ageSpinnerFR);
+        inputPanel.add(dobInputFR);
+        inputPanel.add(genderInputFR);
+        inputPanel.add(commentsInputFR);
+        inputPanel.add(relationshipToInput);
+        buttonPanel.add(submitRelations);
+        buttonPanel.add(backHomeButtonFR);
+
+        //Main panel that will hold everything:
+        JPanel relationPanel = new JPanel(new BorderLayout());
+        relationPanel.add(headerPanel, BorderLayout.NORTH);
+        relationPanel.add(titlePanel, BorderLayout.WEST);
+        relationPanel.add(inputPanel, BorderLayout.CENTER);
+        relationPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return relationPanel;
+    }
+
     public void actionPerformed(ActionEvent event){
         /*Brief summary of what it's doing right now
          * There is no instruction for how to check a stored location
@@ -236,14 +337,19 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         
         //Create the DisasterVictim based on the info entered
         ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
+        ArrayList<DisasterVictim> relations = new ArrayList<>();
+        ArrayList<String> relationships = new ArrayList<>();
         ArrayList<FamilyRelation> familyRelations = new ArrayList<>();
         DisasterVictim victim;
         //All navigational buttons
         if(event.getSource() == medicalRecordsButton){
             cardLayout.show(cardPanel, "medical");
         }
-        if(event.getSource() == backHomeButton){
+        if(event.getSource() == backHomeButtonMR || event.getSource() == backHomeButtonFR){
             cardLayout.show(cardPanel, "main");
+        }
+        if(event.getSource() == relationshipsButton){
+            cardLayout.show(cardPanel, "relation");
         }
 
         //All information retrieving buttons
@@ -268,6 +374,13 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
                 victim = new DisasterVictim(fName, formattedDate, dateOfBirth);
             }
             //Data validation
+            if(!fName.trim().equals("") && !fName.trim().equals("e.g Dorothy")){
+                victim.setLastName(lName);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid first name");
+                validInfo = false;
+            }
             if(!lName.trim().equals("") && !lName.trim().equals("e.g Gale")){
                 victim.setLastName(lName);
             }
@@ -288,6 +401,10 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
             else{
                 JOptionPane.showMessageDialog(this, "Invalid comments");
                 validInfo = false;
+            }
+            //Create all family connections from the list of relatives
+            for(int i = 0; i < relations.size(); i++){
+                familyRelations.add(new FamilyRelation(victim, relationships.get(i), relations.get(i)));
             }
             victim.setFamilyConnections(familyRelations);
             victim.setMedicalRecords(medicalRecords);
@@ -335,7 +452,66 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
                 cardLayout.show(cardPanel, "main");
             }
         }
+
+        if(event.getSource() == submitRelations){
+            DisasterVictim newRelation;
+            boolean validInfo = true;
+            String fName = fnInputFR.getText();
+            String lName = lnInputFR.getText();
+            Integer age = (Integer) ageSpinnerFR.getValue();
+            String dateOfBirth = dobInputFR.getText();
+            String gender = genderInputFR.getText();
+            String comments = commentsInputFR.getText();
+            //Get current date for entry date
+            LocalDate currenDate = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedDate = currenDate.format(formatter);
+
+            //Either age or dateofBirth
+            if(dateOfBirth.equals("") || dateOfBirth.equals("e.g 2004-01-09") || !DisasterVictim.isValidDateFormat(dateOfBirth)){
+                newRelation = new DisasterVictim(fName, formattedDate, age);
+            }
+            else{
+                newRelation = new DisasterVictim(fName, formattedDate, dateOfBirth);
+            }
+            //Data validation
+            if(!fName.trim().equals("") && !fName.trim().equals("e.g Dorothy")){
+                newRelation.setLastName(lName);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid first name");
+                validInfo = false;
+            }
+            if(!lName.trim().equals("") && !lName.trim().equals("e.g Gale")){
+                newRelation.setLastName(lName);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid last name");
+                validInfo = false;
+            }
+            if(!gender.trim().equals("") && !gender.trim().equals("e.g male") && newRelation.validGender(gender)){
+                newRelation.setGender(gender);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid gender");
+                validInfo = false;
+            }
+            if(!comments.trim().equals("") && !comments.trim().equals("e.g Lost in flood")){
+                newRelation.setComments(comments);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Invalid comments");
+                validInfo = false;
+            }
+            if(validInfo){
+                JOptionPane.showMessageDialog(this, "FamilyRelation created successfully!");
+                relations.add(newRelation);
+                relationships.add(relationshipToInput.getText());
+                cardLayout.show(cardPanel, "main");
+            }
+        }
     }
+
 
     public void mouseClicked(MouseEvent event){
 
