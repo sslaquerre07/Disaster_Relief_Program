@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Date;
 //To get current date
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
