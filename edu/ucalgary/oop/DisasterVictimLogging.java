@@ -79,6 +79,8 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
     private JTextField dobInputFR;
     private JTextField genderInputFR;
     private JScrollPane dietaryInputFR;
+    private DefaultListModel<DietaryRestriction> listModelFR = new DefaultListModel<>();
+    private JList<DietaryRestriction> listFR = new JList<>(listModelFR);
     private JTextField commentsInputFR;
     private JTextField relationshipToInput;
 
@@ -131,8 +133,8 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         ageSpinner.setEditor(editor);
         dobInput = new JTextField("e.g 2004-01-09", 15);
         genderInput = new JTextField("e.g male", 15);
-        DefaultListModel<DietaryRestriction> listModel = new DefaultListModel<>();
-        JList<DietaryRestriction> list = new JList<>(listModel);
+        listModel = new DefaultListModel<>();
+        list = new JList<>(listModel);
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         //Unfortunately, users will have to hold the control button to multi-select
         dietaryInput = new JScrollPane(list);
@@ -282,6 +284,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         ageLabelFR = new JLabel("Approx age(Choose either this or date of birth): ");
         dobLabelFR = new JLabel("Date of Birth: ");
         genderLabelFR = new JLabel("Enter your gender:(Optional) ");
+        dietaryLabelFR = new JLabel("<html>Please select all necessary dietary restrictions<br />Hold the CTRL key while selecting if you have multiple</html>");
         commentsLabelFR = new JLabel("Any additional comments:(Optional) ");
         relationshipToLabel = new JLabel("Relationship to the victim");
 
@@ -294,8 +297,20 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         ageSpinnerFR.setEditor(editor);
         dobInputFR = new JTextField("e.g 2004-01-09", 15);
         genderInputFR = new JTextField("e.g male", 15);
+        listFR.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        //Unfortunately, users will have to hold the control button to multi-select
+        dietaryInputFR = new JScrollPane(listFR);
+        listModelFR.addElement(DietaryRestriction.AVML);
+        listModelFR.addElement(DietaryRestriction.DBML);
+        listModelFR.addElement(DietaryRestriction.GFML);
+        listModelFR.addElement(DietaryRestriction.KSML);
+        listModelFR.addElement(DietaryRestriction.LSML);
+        listModelFR.addElement(DietaryRestriction.MOML);
+        listModelFR.addElement(DietaryRestriction.PFML);
+        listModelFR.addElement(DietaryRestriction.VGML);
+        listModelFR.addElement(DietaryRestriction.VJML);
         commentsInputFR = new JTextField("e.g Lost in flood", 15);
-        relationshipToInput = new JTextField("e.g sibling");
+        relationshipToInput = new JTextField("e.g sibling", 15);
 
         //Adds mouse listeners
         fnInputFR.addMouseListener(this);
@@ -316,8 +331,8 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         //Panels for the home page
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new FlowLayout());
-        JPanel titlePanel = new JPanel(new GridLayout(7,1));
-        JPanel inputPanel = new JPanel(new GridLayout(7,1));
+        JPanel titlePanel = new JPanel(new GridLayout(8,1));
+        JPanel inputPanel = new JPanel(new GridLayout(8,1));
         JPanel buttonPanel = new JPanel(new GridLayout(2, 1));
         JPanel submitPanel = new JPanel();
         submitPanel.setLayout(new FlowLayout());
@@ -329,6 +344,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         titlePanel.add(ageLabelFR);
         titlePanel.add(dobLabelFR);
         titlePanel.add(genderLabelFR);
+        titlePanel.add(dietaryLabelFR);
         titlePanel.add(commentsLabelFR);
         titlePanel.add(relationshipToLabel);
         inputPanel.add(fnInputFR);
@@ -336,6 +352,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         inputPanel.add(ageSpinnerFR);
         inputPanel.add(dobInputFR);
         inputPanel.add(genderInputFR);
+        inputPanel.add(dietaryInputFR);
         inputPanel.add(commentsInputFR);
         inputPanel.add(relationshipToInput);
         buttonPanel.add(submitRelations);
@@ -534,6 +551,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
             else{
                 JOptionPane.showMessageDialog(this, "Invalid comments");
                 validInfo = false;
+            }
+            //Retrieve all dietary restrictions
+            ArrayList<DietaryRestriction> selectedOptions = new ArrayList<>();
+            int [] selectedIndices = listFR.getSelectedIndices();
+            for(int index : selectedIndices){
+                selectedOptions.add(listModelFR.getElementAt(index));
+            }
+            for(DietaryRestriction restriction : selectedOptions){
+                newRelation.addDietaryRestriction(restriction);
             }
             if(validInfo){
                 JOptionPane.showMessageDialog(this, "FamilyRelation created successfully!");
