@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 
-public class DisasterVictimLogging extends JFrame implements ActionListener, MouseListener{
+public class DisasterVictimLogging extends JFrame implements ActionListener{
     private CardLayout cardLayout;
     private JPanel cardPanel;
 
@@ -148,14 +148,6 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         listModel.addElement(DietaryRestriction.VJML);
         commentsInput = new JTextField("e.g Lost in flood", 15);
 
-        //Adds mouse listeners
-        fnInput.addMouseListener(this);
-        lnInput.addMouseListener(this);
-        ageSpinner.addMouseListener(this);
-        dobInput.addMouseListener(this);
-        genderInput.addMouseListener(this);
-        commentsInput.addMouseListener(this);
-
         //Create buttons
         relationshipsButton = new JButton("Family Relationships");
         medicalRecordsButton = new JButton("Medical Records");
@@ -222,14 +214,6 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         //Create all buttons
         backHomeButtonMR = new JButton("Home");
         submitMRInfoButton = new JButton("Submit");
-
-        //Add all listeners
-        nameInput.addMouseListener(this);
-        addressInput.addMouseListener(this);
-        treatmentInput.addMouseListener(this);
-        dateOfTreatmentInput.addMouseListener(this);
-        backHomeButtonMR.addActionListener(this);
-        submitMRInfoButton.addActionListener(this);
 
         //Create all panels
         JPanel headerPanel = new JPanel(new FlowLayout());
@@ -310,14 +294,6 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         listModelFR.addElement(DietaryRestriction.VJML);
         commentsInputFR = new JTextField("e.g Lost in flood", 15);
         relationshipToInput = new JTextField("e.g sibling", 15);
-
-        //Adds mouse listeners
-        fnInputFR.addMouseListener(this);
-        lnInputFR.addMouseListener(this);
-        ageSpinnerFR.addMouseListener(this);
-        dobInputFR.addMouseListener(this);
-        genderInputFR.addMouseListener(this);
-        commentsInputFR.addMouseListener(this);
 
         //Add Button
         submitRelations = new JButton("Submit");
@@ -567,27 +543,6 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
                 cardLayout.show(cardPanel, "main");
             }
         }
-    }
-
-
-    public void mouseClicked(MouseEvent event){
-
-    }
-
-    public void mouseEntered(MouseEvent event){
-
-    }
-
-    public void mouseExited(MouseEvent event){
-
-    }
-
-    public void mousePressed(MouseEvent event){
-
-    }
-
-    public void mouseReleased(MouseEvent event){
-
     }
 
     public static void main(String[] args) {
