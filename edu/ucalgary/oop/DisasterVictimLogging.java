@@ -27,6 +27,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
     private JLabel ageLabel;
     private JLabel dobLabel;
     private JLabel genderLabel;
+    private JLabel dietaryLabel;
     private JLabel commentsLabel;
 
     //Input titles for main page
@@ -35,6 +36,9 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
     private JSpinner ageSpinner;
     private JTextField dobInput;
     private JTextField genderInput;
+    private JScrollPane dietaryInput;
+    private DefaultListModel<DietaryRestriction> listModel = new DefaultListModel<>();
+    private JList<DietaryRestriction> list = new JList<>(listModel);
     private JTextField commentsInput;
 
 
@@ -64,6 +68,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
     private JLabel ageLabelFR;
     private JLabel dobLabelFR;
     private JLabel genderLabelFR;
+    private JLabel dietaryLabelFR;
     private JLabel commentsLabelFR;
     private JLabel relationshipToLabel;
 
@@ -73,6 +78,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
     private JSpinner ageSpinnerFR;
     private JTextField dobInputFR;
     private JTextField genderInputFR;
+    private JScrollPane dietaryInputFR;
     private JTextField commentsInputFR;
     private JTextField relationshipToInput;
 
@@ -113,6 +119,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         ageLabel = new JLabel("Approx age(Choose either this or date of birth): ");
         dobLabel = new JLabel("Date of Birth: ");
         genderLabel = new JLabel("Enter your gender:(Optional) ");
+        dietaryLabel = new JLabel("<html>Please select all necessary dietary restrictions<br />Hold the CTRL key while selecting if you have multiple</html>");
         commentsLabel = new JLabel("Any additional comments:(Optional) ");
 
         //Sets all input titles
@@ -124,6 +131,20 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         ageSpinner.setEditor(editor);
         dobInput = new JTextField("e.g 2004-01-09", 15);
         genderInput = new JTextField("e.g male", 15);
+        DefaultListModel<DietaryRestriction> listModel = new DefaultListModel<>();
+        JList<DietaryRestriction> list = new JList<>(listModel);
+        list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        //Unfortunately, users will have to hold the control button to multi-select
+        dietaryInput = new JScrollPane(list);
+        listModel.addElement(DietaryRestriction.AVML);
+        listModel.addElement(DietaryRestriction.DBML);
+        listModel.addElement(DietaryRestriction.GFML);
+        listModel.addElement(DietaryRestriction.KSML);
+        listModel.addElement(DietaryRestriction.LSML);
+        listModel.addElement(DietaryRestriction.MOML);
+        listModel.addElement(DietaryRestriction.PFML);
+        listModel.addElement(DietaryRestriction.VGML);
+        listModel.addElement(DietaryRestriction.VJML);
         commentsInput = new JTextField("e.g Lost in flood", 15);
 
         //Adds mouse listeners
@@ -147,8 +168,8 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         //Panels for the home page
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new FlowLayout());
-        JPanel titlePanel = new JPanel(new GridLayout(6,1));
-        JPanel inputPanel = new JPanel(new GridLayout(6,1));
+        JPanel titlePanel = new JPanel(new GridLayout(7,1));
+        JPanel inputPanel = new JPanel(new GridLayout(7,1));
         JPanel buttonPanel = new JPanel(new GridLayout(3, 1));
         JPanel submitPanel = new JPanel();
         submitPanel.setLayout(new FlowLayout());
@@ -160,12 +181,14 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
         titlePanel.add(ageLabel);
         titlePanel.add(dobLabel);
         titlePanel.add(genderLabel);
+        titlePanel.add(dietaryLabel);
         titlePanel.add(commentsLabel);
         inputPanel.add(fnInput);
         inputPanel.add(lnInput);
         inputPanel.add(ageSpinner);
         inputPanel.add(dobInput);
         inputPanel.add(genderInput);
+        inputPanel.add(dietaryInput);
         inputPanel.add(commentsInput);
         buttonPanel.add(relationshipsButton);
         buttonPanel.add(medicalRecordsButton);
@@ -401,6 +424,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener, Mou
             else{
                 JOptionPane.showMessageDialog(this, "Invalid comments");
                 validInfo = false;
+            }
+            //Retrieve all dietary restrictions
+            ArrayList<DietaryRestriction> selectedOptions = new ArrayList<>();
+            int [] selectedIndices = list.getSelectedIndices();
+            for(int index : selectedIndices){
+                selectedOptions.add(listModel.getElementAt(index));
+            }
+            for(DietaryRestriction restriction : selectedOptions){
+                victim.addDietaryRestriction(restriction);
             }
             //Create all family connections from the list of relatives
             for(int i = 0; i < relations.size(); i++){
