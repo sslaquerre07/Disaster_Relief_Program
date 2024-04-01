@@ -17,6 +17,35 @@ public class InquiryGUI extends JFrame implements ActionListener{
     private JRadioButtonMenuItem locationWorker;
     private JButton loginButton;
 
+    //Components of the inquiry page
+    private JLabel title;
+    private JLabel dateOfInquiryLabel;
+    private JLabel infoProvidedLabel;
+    private JLabel locationLabel;
+    private JLabel locationNameLabel;
+    private JLabel locationAddressLabel;
+    private JTextField dateOfInquiryInput;
+    private JTextField infoProvidedInput;
+    private JTextField locationNameInput;
+    private JTextField locationAddressInput;
+
+    private JButton searchVictimsButton;
+    private JButton createNewPersonButton;
+    private JButton submitInquiry;
+
+    //Components of the searchVictim Page
+    private JLabel firstNameSearchLabel;
+    private JLabel lastNameSearchLabel;
+    private JLabel resultsLabel;
+    private JTextField firstNameSearchInput;
+    private JTextField lastNameSearchInput;
+    private JScrollPane results;
+    private DefaultListModel<DietaryRestriction> listModel = new DefaultListModel<>();
+    private JList<DietaryRestriction> list = new JList<>(listModel);
+
+    private JButton backHomeSVButton;
+    private JButton chooseVictimButton;
+
     public InquiryGUI(){
         super("Inquiry Logging GUI");
         //Establish connection to database to search for victims
@@ -35,6 +64,8 @@ public class InquiryGUI extends JFrame implements ActionListener{
 
         //Add all pages to the card panel:
         cardPanel.add(this.setupLogin(), "main");
+        cardPanel.add(this.setupInquiryPage(), "inquiry");
+        cardPanel.add(this.setupSearchVictimPage(), "search");
 
         //Add cardPanel to the main panel
         getContentPane().add(cardPanel);
@@ -76,19 +107,115 @@ public class InquiryGUI extends JFrame implements ActionListener{
         return mainPanel;
     }
 
+    private JPanel setupInquiryPage(){
+        //Labels and inputs
+        title = new JLabel("Welcome to the Inquiry Logging Page");
+        dateOfInquiryLabel = new JLabel("Please enter the date of inquiry");
+        infoProvidedLabel = new JLabel("Please enter any additional info provided");
+        locationNameLabel = new JLabel("Enter Location Name");
+        locationAddressLabel = new JLabel("Enter Location Address");
+        dateOfInquiryInput = new JTextField("e.g 2004-09-09");
+        infoProvidedInput = new JTextField("e.g Volunteer opportunities?");
+        locationNameInput = new JTextField("e.g Telus Spark Center");
+        locationAddressInput = new JTextField("e.g 123 Sesame Street");
+
+        //Buttons
+        searchVictimsButton = new JButton("Search For Victims");
+        createNewPersonButton = new JButton("Create New Victim");
+        submitInquiry = new JButton("Submit");
+
+        //Panels
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel headerPanel = new JPanel(new FlowLayout());
+        JPanel labelPanel = new JPanel(new GridLayout(4,1));
+        JPanel inputPanel = new JPanel(new GridLayout(4,1));
+        JPanel buttonPanel = new JPanel(new GridLayout(3,1));
+
+        //Add action listeners to the buttons
+        createNewPersonButton.addActionListener(this);
+        searchVictimsButton.addActionListener(this);
+        submitInquiry.addActionListener(this);
+
+        //Add to Panels
+        headerPanel.add(title);
+        labelPanel.add(dateOfInquiryLabel);
+        labelPanel.add(infoProvidedLabel);
+        labelPanel.add(locationNameLabel);
+        labelPanel.add(locationAddressLabel);
+        inputPanel.add(dateOfInquiryInput);
+        inputPanel.add(infoProvidedInput);
+        inputPanel.add(locationNameInput);
+        inputPanel.add(locationAddressInput);
+        buttonPanel.add(searchVictimsButton);
+        buttonPanel.add(createNewPersonButton);
+        buttonPanel.add(submitInquiry);
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(labelPanel, BorderLayout.WEST);
+        mainPanel.add(inputPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return mainPanel;
+    }
+
+    private JPanel setupSearchVictimPage(){
+        //Set all labels
+        firstNameSearchLabel = new JLabel("First Name: ");
+        lastNameSearchLabel = new JLabel("Last Name:(Optional) ");
+        resultsLabel = new JLabel("Search Results");
+        firstNameSearchInput = new JTextField("e.g Dorothy");
+        lastNameSearchInput = new JTextField("e.g Gale");
+        listModel = new DefaultListModel<>();
+        list = new JList<>(listModel);
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        //Unfortunately, users will have to hold the control button to multi-select
+        results = new JScrollPane(list);
+        backHomeSVButton = new JButton("Home");
+        //Not visible initially, but will become visible once a victim is chosen
+        chooseVictimButton = new JButton("Select current victim");
+
+        //Add action listeners
+        backHomeSVButton.addActionListener(this);
+        chooseVictimButton.addActionListener(this);
+
+        //Create the page
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel labelPanel = new JPanel(new GridLayout(3, 1));
+        JPanel inputPanel = new JPanel(new GridLayout(3, 1));
+        JPanel buttonsPanel = new JPanel(new GridLayout(2, 1));
+        labelPanel.add(firstNameSearchLabel);
+        labelPanel.add(lastNameSearchLabel);
+        labelPanel.add(resultsLabel);
+        inputPanel.add(firstNameSearchInput);
+        inputPanel.add(lastNameSearchInput);
+        inputPanel.add(results);
+        buttonsPanel.add(backHomeSVButton);
+        buttonsPanel.add(chooseVictimButton);
+        mainPanel.add(labelPanel, BorderLayout.WEST);
+        mainPanel.add(inputPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        return mainPanel;
+    }
+
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == loginButton){
             if(centralWorker.isSelected()){
                 //Just displaying a message for now, switch over to inquiry page when done
-                JOptionPane.showMessageDialog(this, "You have chosen central worker");
+                cardLayout.show(cardPanel, "inquiry");
             }
             else if (locationWorker.isSelected()){
                 //Just displaying a message for now, switch over to inquiry page when done
-                JOptionPane.showMessageDialog(this, "You have chosen location worker");
+                cardLayout.show(cardPanel, "inquiry");
             }
             else{
                 JOptionPane.showMessageDialog(this, "Please choose one of the two options");
             }
+        }
+        if(e.getSource() == backHomeSVButton){
+            cardLayout.show(cardPanel, "inquiry");
+        }
+        if(e.getSource() == searchVictimsButton){
+            cardLayout.show(cardPanel, "search");
         }
     }
 
