@@ -1,8 +1,13 @@
 package edu.ucalgary.oop;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class InquiryGUI extends JFrame implements ActionListener{
     private CardLayout cardLayout;
@@ -21,7 +26,6 @@ public class InquiryGUI extends JFrame implements ActionListener{
     private JLabel title;
     private JLabel dateOfInquiryLabel;
     private JLabel infoProvidedLabel;
-    private JLabel locationLabel;
     private JLabel locationNameLabel;
     private JLabel locationAddressLabel;
     private JTextField dateOfInquiryInput;
@@ -40,9 +44,10 @@ public class InquiryGUI extends JFrame implements ActionListener{
     private JTextField firstNameSearchInput;
     private JTextField lastNameSearchInput;
     private JScrollPane results;
-    private DefaultListModel<DietaryRestriction> listModel = new DefaultListModel<>();
-    private JList<DietaryRestriction> list = new JList<>(listModel);
+    private DefaultListModel<String> listModel = new DefaultListModel<>();
+    private JList<String> list = new JList<>(listModel);
 
+    private JButton searchButton;
     private JButton backHomeSVButton;
     private JButton chooseVictimButton;
 
@@ -169,11 +174,13 @@ public class InquiryGUI extends JFrame implements ActionListener{
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //Unfortunately, users will have to hold the control button to multi-select
         results = new JScrollPane(list);
+        searchButton = new JButton("Search");
         backHomeSVButton = new JButton("Home");
         //Not visible initially, but will become visible once a victim is chosen
         chooseVictimButton = new JButton("Select current victim");
 
         //Add action listeners
+        searchButton.addActionListener(this);
         backHomeSVButton.addActionListener(this);
         chooseVictimButton.addActionListener(this);
 
@@ -181,15 +188,23 @@ public class InquiryGUI extends JFrame implements ActionListener{
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel labelPanel = new JPanel(new GridLayout(3, 1));
         JPanel inputPanel = new JPanel(new GridLayout(3, 1));
-        JPanel buttonsPanel = new JPanel(new GridLayout(2, 1));
+        JPanel buttonsPanel = new JPanel(new GridLayout(3, 1));
         labelPanel.add(firstNameSearchLabel);
         labelPanel.add(lastNameSearchLabel);
         labelPanel.add(resultsLabel);
         inputPanel.add(firstNameSearchInput);
         inputPanel.add(lastNameSearchInput);
         inputPanel.add(results);
+        buttonsPanel.add(searchButton);
         buttonsPanel.add(backHomeSVButton);
-        buttonsPanel.add(chooseVictimButton);
+        //Will add the choose a victim button when an option is selected
+        list.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e){
+                buttonsPanel.add(chooseVictimButton);
+                buttonsPanel.revalidate();
+                buttonsPanel.repaint();
+            }
+        });
         mainPanel.add(labelPanel, BorderLayout.WEST);
         mainPanel.add(inputPanel, BorderLayout.CENTER);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
@@ -198,6 +213,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
     }
 
     public void actionPerformed(ActionEvent e){
+        /*Main Page Actions */
         if(e.getSource() == loginButton){
             if(centralWorker.isSelected()){
                 //Just displaying a message for now, switch over to inquiry page when done
@@ -211,11 +227,37 @@ public class InquiryGUI extends JFrame implements ActionListener{
                 JOptionPane.showMessageDialog(this, "Please choose one of the two options");
             }
         }
+
+        /*Inquiry Page Actions */
+        if(e.getSource() == searchVictimsButton){
+            cardLayout.show(cardPanel, "search");
+        }
+
+        /*Search Page Actions */
         if(e.getSource() == backHomeSVButton){
             cardLayout.show(cardPanel, "inquiry");
         }
-        if(e.getSource() == searchVictimsButton){
-            cardLayout.show(cardPanel, "search");
+        if (e.getSource() == searchButton){
+            listModel.clear();
+            String fName = firstNameSearchInput.getText();
+            String lName = lastNameSearchInput.getText();
+            if (fName.trim().equals("e.g Dorothy")){
+                JOptionPane.showMessageDialog(this, "Need a first name to search");
+            }
+            else if(lName.trim().equals("e.g Gale")){
+                ResultSet results = dbConnection.searchInquiryLog(fName.trim());
+                try{
+                    while(results.next()){
+                        int inquirerID = results.getInt("inquirer");
+                        String details = results.getString("details");
+                        String displayString = "InquirerID: " + inquirerID + ", Name: " + details;
+                        listModel.addElement(displayString);
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 

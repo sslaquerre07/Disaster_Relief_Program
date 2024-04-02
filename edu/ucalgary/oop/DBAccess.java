@@ -24,7 +24,7 @@ public class DBAccess {
     protected void retrieveInquirers(){
         try{
             Statement selectInquirers = dbConnect.createStatement();
-            inquirerResults = selectInquirers.executeQuery("select * from inquirer");
+            this.inquirerResults = selectInquirers.executeQuery("select * from inquirer");
         }
         catch(SQLException ex){
             ex.printStackTrace();
@@ -35,17 +35,32 @@ public class DBAccess {
     protected void retrieveInquiryLogResults(){
         try{
             Statement selectInquiryLog = dbConnect.createStatement();
-            inquiryLogResults = selectInquiryLog.executeQuery("select * from inquiry_log");
+            this.inquiryLogResults = selectInquiryLog.executeQuery("select * from inquiry_log");
         }
         catch(SQLException ex){
             ex.printStackTrace();
         }
     }
 
+    protected void searchInquiryLogResults(String searchTerm){
+        try{
+            String searchQuery = "SELECT * FROM inquiry_log WHERE LOWER(details) LIKE LOWER(?)";
+            PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
+            searchStatement.setString(1, "%" + searchTerm.trim() + "%");
+            this.inquiryLogResults = searchStatement.executeQuery();
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        catch(Error e){
+            e.printStackTrace();
+        }
+    }
+
     //Turns results for any table into a string (Helper function)
     public String stringifyResults(ResultSet results){
-        StringBuffer resultStringBuffer = new StringBuffer();
         try{
+            StringBuffer resultStringBuffer = new StringBuffer();
             //Getting column names
             ArrayList<String> columnNames = new ArrayList<>();
             ResultSetMetaData metaData = results.getMetaData();
@@ -61,49 +76,39 @@ public class DBAccess {
                 }
                 resultStringBuffer.append("\n");
             }
+            return resultStringBuffer.toString();
         }
         catch(SQLException ex){
             ex.printStackTrace();
-        }
-        return resultStringBuffer.toString();
-    }
-
-    public String getInquirers(){
-        try{
-            this.retrieveInquirers();
-            String result = stringifyResults(this.inquirerResults);
-            this.inquirerResults.close();
-            return result;
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            return "Something went wrong";
+            return "";
         }
     }
 
-    public String getInquiryLog(){
-        try{
-            this.retrieveInquiryLogResults();
-            String result = stringifyResults(this.inquiryLogResults);
-            this.inquiryLogResults.close();
-            return result;
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-            return "Something went wrong";
-        }
+    public ResultSet getInquirers(){
+        this.retrieveInquirers();
+        return this.inquirerResults;
+    }
+
+    public ResultSet getInquiryLog(){
+        this.retrieveInquiryLogResults();
+        return this.inquiryLogResults;
+    }
+
+    public ResultSet searchInquiryLog(String searchTerm){
+        this.searchInquiryLogResults(searchTerm);
+        return this.inquiryLogResults;
     }
 
     //Makes sure that everything is being closed correctly
     public void close(){
         try{
-            if(inquirerResults != null){
-                inquirerResults.close();
+            if(this.inquirerResults != null){
+                this.inquirerResults.close();
             }
-            if(inquiryLogResults != null){
-                inquiryLogResults.close();
+            if(this.inquiryLogResults != null){
+                this.inquiryLogResults.close();
             }
-            dbConnect.close();
+            this.dbConnect.close();
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -113,12 +118,9 @@ public class DBAccess {
     //Main for testing
     public static void main(String[] args) {
         DBAccess myJBDC = new DBAccess();
-        //1. Create connection
-        myJBDC.retrieveInquiryLogResults();
 
-        String allInquirers = myJBDC.getInquiryLog();
-        System.out.println(allInquirers);
-
+        ResultSet results = myJBDC.searchInquiryLog("melinda");
+        System.out.println(myJBDC.stringifyResults(results));
         myJBDC.close();
     }
 }
