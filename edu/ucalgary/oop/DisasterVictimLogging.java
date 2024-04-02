@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 public class DisasterVictimLogging extends JFrame implements ActionListener{
     private CardLayout cardLayout;
     private JPanel cardPanel;
+    private DBAccess dbConnect;
 
     /*Main page variables*/
     //All the buttons and labels on the main page
@@ -25,6 +26,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JLabel lnLabel;
     private JLabel ageLabel;
     private JLabel dobLabel;
+    private JLabel locationIDLabel;
     private JLabel genderLabel;
     private JLabel dietaryLabel;
     private JLabel commentsLabel;
@@ -34,6 +36,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JTextField lnInput;
     private JSpinner ageSpinner;
     private JTextField dobInput;
+    private JSpinner locationIDSpinner;
     private JTextField genderInput;
     private JScrollPane dietaryInput;
     private DefaultListModel<DietaryRestriction> listModel = new DefaultListModel<>();
@@ -90,6 +93,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
 
     public DisasterVictimLogging(){
         super("Disaster Victim Logging GUI");
+        this.dbConnect = new DBAccess();
 
         setupGUI();
         setSize(500, 300);
@@ -119,6 +123,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         lnLabel = new JLabel("Last Name:(Optional) ");
         ageLabel = new JLabel("Approx age(Choose either this or date of birth): ");
         dobLabel = new JLabel("Date of Birth: ");
+        locationIDLabel = new JLabel("Please enter the location ID");
         genderLabel = new JLabel("Enter your gender:(Optional) ");
         dietaryLabel = new JLabel("<html>Please select all necessary dietary restrictions<br />Hold the CTRL key while selecting if you have multiple</html>");
         commentsLabel = new JLabel("Any additional comments:(Optional) ");
@@ -131,6 +136,10 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         JSpinner.NumberEditor editor = new JSpinner.NumberEditor(ageSpinner, "#");
         ageSpinner.setEditor(editor);
         dobInput = new JTextField("e.g 2004-01-09", 15);
+        SpinnerModel locationID = new SpinnerNumberModel(18, 0, 150, 1);
+        locationIDSpinner = new JSpinner(locationID);
+        JSpinner.NumberEditor editorL = new JSpinner.NumberEditor(locationIDSpinner, "#");
+        locationIDSpinner.setEditor(editorL);
         genderInput = new JTextField("e.g male", 15);
         listModel = new DefaultListModel<>();
         list = new JList<>(listModel);
@@ -161,8 +170,8 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         //Panels for the home page
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new FlowLayout());
-        JPanel titlePanel = new JPanel(new GridLayout(7,1));
-        JPanel inputPanel = new JPanel(new GridLayout(7,1));
+        JPanel titlePanel = new JPanel(new GridLayout(8,1));
+        JPanel inputPanel = new JPanel(new GridLayout(8,1));
         JPanel buttonPanel = new JPanel(new GridLayout(3, 1));
         JPanel submitPanel = new JPanel();
         submitPanel.setLayout(new FlowLayout());
@@ -173,6 +182,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         titlePanel.add(lnLabel);
         titlePanel.add(ageLabel);
         titlePanel.add(dobLabel);
+        titlePanel.add(locationIDLabel);
         titlePanel.add(genderLabel);
         titlePanel.add(dietaryLabel);
         titlePanel.add(commentsLabel);
@@ -180,6 +190,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         inputPanel.add(lnInput);
         inputPanel.add(ageSpinner);
         inputPanel.add(dobInput);
+        inputPanel.add(locationIDSpinner);
         inputPanel.add(genderInput);
         inputPanel.add(dietaryInput);
         inputPanel.add(commentsInput);
@@ -377,9 +388,9 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             String gender = genderInput.getText();
             String comments = commentsInput.getText();
             //Get current date for entry date
-            LocalDate currenDate = LocalDate.now();
+            LocalDate currentDate = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String formattedDate = currenDate.format(formatter);
+            String formattedDate = currentDate.format(formatter);
 
             //Either age or dateofBirth
             if(dateOfBirth.equals("") || dateOfBirth.equals("e.g 2004-01-09") || !DisasterVictim.isValidDateFormat(dateOfBirth)){
@@ -432,8 +443,14 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
             victim.setFamilyConnections(familyRelations);
             victim.setMedicalRecords(medicalRecords);
+            if(!this.dbConnect.validLocationID((int) locationIDSpinner.getValue())){
+                JOptionPane.showMessageDialog(this, "Invalid Location ID");
+                validInfo = false;
+            }
             if(validInfo){
+                this.dbConnect.addDisasterVictim(victim, (int) locationIDSpinner.getValue());
                 JOptionPane.showMessageDialog(this, "DisasterVictim created successfully!");
+                this.dbConnect.close();
                 System.exit(0);
             }
         }
@@ -487,9 +504,9 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             String gender = genderInputFR.getText();
             String comments = commentsInputFR.getText();
             //Get current date for entry date
-            LocalDate currenDate = LocalDate.now();
+            LocalDate currentDate = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String formattedDate = currenDate.format(formatter);
+            String formattedDate = currentDate.format(formatter);
 
             //Either age or dateofBirth
             if(dateOfBirth.equals("") || dateOfBirth.equals("e.g 2004-01-09") || !DisasterVictim.isValidDateFormat(dateOfBirth)){

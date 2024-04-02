@@ -57,6 +57,66 @@ public class DBAccess {
         }
     }
 
+    protected void addDisasterVictim(DisasterVictim victim, int locationID){
+        try{
+            String addVictim = "INSERT INTO DISASTER_VICTIM (fName, lName, dob, age, location_id) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement addVictimStatement = this.dbConnect.prepareStatement(addVictim);
+            addVictimStatement.setString(1, victim.getFirstName());
+            addVictimStatement.setString(2, victim.getLastName());
+            if(victim.getDateOfBirth() == null){
+                addVictimStatement.setNull(3, Types.DATE);
+                addVictimStatement.setInt(4, victim.getAge());
+            }
+            else{
+                Date sqlDate = Date.valueOf(victim.getDateOfBirth());
+                addVictimStatement.setDate(3, sqlDate);
+                addVictimStatement.setNull(4, Types.INTEGER);
+            }
+            addVictimStatement.setInt(5, locationID);
+            int affectedRows = addVictimStatement.executeUpdate();
+            if (affectedRows > 0){
+                ResultSet rs = addVictimStatement.getGeneratedKeys();
+                if(rs.next()){
+                    int social_id = rs.getInt(1);
+                    System.out.println(social_id);
+                }
+            }
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    protected boolean validLocationID(int location_id){
+        try{
+            Statement getIDStatement = this.dbConnect.createStatement();
+            ResultSet result = getIDStatement.executeQuery("SELECT MAX(location_id) FROM DISASTER_VICTIM");
+            int max_id = -1;
+            if(result.next()){
+                max_id = result.getInt(1);
+            }
+            if (location_id < 0 || location_id > max_id){
+                return false;
+            }
+            else{
+                return true;
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // private void addMedicalRecord(DisasterVictim victim){
+    //     try{
+          
+    //     }
+    //     catch(SQLException e){
+    //         e.printStackTrace();
+    //     }
+    // }
+
     //Turns results for any table into a string (Helper function)
     public String stringifyResults(ResultSet results){
         try{
