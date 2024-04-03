@@ -528,7 +528,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         }
 
         /* Medical Records Related Info */
-        if(event.getSource() == submitMRInfoButton){
+        if(event.getSource() == submitMRInfoButton && newLocation.isSelected()){
             boolean validData = true;
             Location location = null;
             String locationName = nameInput.getText();
@@ -561,11 +561,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
             //Adds it to the arrayList if all inputs are valid
             if(validData && location != null){
+                //Add location to the DB here
                 medicalRecords.add(new MedicalRecord(location, treatmentDetailString, dateOfTreatmentString));
                 System.out.println(medicalRecords.size());
                 JOptionPane.showMessageDialog(this, "Medical Record created and added successfully");
                 cardLayout.show(cardPanel, "main");
             }
+        }
+        if (event.getSource() == submitMRInfoButton && currentLocation.isSelected()){
+            //Deal with when a current location is chosen
         }
 
         if(event.getSource() == newLocation){
