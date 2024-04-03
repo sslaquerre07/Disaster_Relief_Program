@@ -9,6 +9,7 @@ public class DBAccess {
     protected Connection dbConnect;
     protected ResultSet inquirerResults;
     protected ResultSet inquiryLogResults;
+    protected ResultSet locationResults;
 
     //Constructor
     public DBAccess(){
@@ -42,6 +43,17 @@ public class DBAccess {
         }
     }
 
+    protected ResultSet retrieveAllLocations(){
+        try{
+            Statement selectLocations = dbConnect.createStatement();
+            return selectLocations.executeQuery("SELECT * FROM LOCATION_TABLE");
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
     protected void searchInquiryLogResults(String searchTerm){
         try{
             String searchQuery = "SELECT * FROM inquiry_log WHERE LOWER(details) LIKE LOWER(?)";
@@ -60,7 +72,7 @@ public class DBAccess {
     protected void addDisasterVictim(DisasterVictim victim, int locationID){
         try{
             String addVictim = "INSERT INTO DISASTER_VICTIM (fName, lName, dob, age, location_id) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement addVictimStatement = this.dbConnect.prepareStatement(addVictim);
+            PreparedStatement addVictimStatement = this.dbConnect.prepareStatement(addVictim, Statement.RETURN_GENERATED_KEYS);
             addVictimStatement.setString(1, victim.getFirstName());
             addVictimStatement.setString(2, victim.getLastName());
             if(victim.getDateOfBirth() == null){
@@ -78,7 +90,9 @@ public class DBAccess {
                 ResultSet rs = addVictimStatement.getGeneratedKeys();
                 if(rs.next()){
                     int social_id = rs.getInt(1);
-                    System.out.println(social_id);
+                    if(victim.getMedicalRecords().size() != 0){
+                        this.addMedicalRecords(victim.getMedicalRecords(), locationID, social_id);
+                    }
                 }
             }
         }
@@ -108,14 +122,24 @@ public class DBAccess {
         }
     }
 
-    // private void addMedicalRecord(DisasterVictim victim){
-    //     try{
-          
-    //     }
-    //     catch(SQLException e){
-    //         e.printStackTrace();
-    //     }
-    // }
+    private void addMedicalRecords(ArrayList<MedicalRecord> list, int location_id, int social_id){
+        try{
+            for(int i = 0; i < list.size(); i++){
+                String medicalRecord = "INSERT INTO MEDICAL_RECORD (date_of_treatment, treatment_detials, location_id, social_id) VALUES (?, ?, ?, ?)";
+                PreparedStatement addMRStatement = this.dbConnect.prepareStatement(medicalRecord);
+                Date date = Date.valueOf(list.get(i).getDateOfTreatment());
+                addMRStatement.setDate(1, date);
+                addMRStatement.setString(2, list.get(i).getTreatmentDetails());
+                addMRStatement.setInt(3, location_id);
+                addMRStatement.setInt(4, social_id);
+                addMRStatement.executeUpdate();
+                System.out.println("Success");
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
 
     //Turns results for any table into a string (Helper function)
     public String stringifyResults(ResultSet results){

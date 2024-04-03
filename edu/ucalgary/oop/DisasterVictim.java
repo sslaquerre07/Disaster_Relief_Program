@@ -123,10 +123,7 @@ public class DisasterVictim implements FileAccess{
     }
 
     public void setMedicalRecords(ArrayList<MedicalRecord> records) {
-        this.medicalRecords.clear();
-        for (MedicalRecord newRecord : records) {
-            addMedicalRecord(newRecord);
-        }
+        this.medicalRecords = records;
     }
 
     public void setDietaryRestrictions(ArrayList<DietaryRestriction> dietaryRestrictions){

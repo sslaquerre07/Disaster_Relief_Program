@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 //To get current date
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -13,6 +15,19 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private DBAccess dbConnect;
+
+    //All pages reference
+    private JPanel mainPanel;
+    private JPanel medicalPanel;
+    private JPanel familyRelationsPanel;
+
+    //Declaration of variables for data processing
+    //Create the DisasterVictim based on the info entered
+    private ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
+    private ArrayList<DisasterVictim> relations = new ArrayList<>();
+    private ArrayList<String> relationships = new ArrayList<>();
+    private ArrayList<FamilyRelation> familyRelations = new ArrayList<>();
+    private DisasterVictim victim;
 
     /*Main page variables*/
     //All the buttons and labels on the main page
@@ -46,17 +61,24 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
 
     /*Medical Record page variables*/
     //Labels for the medical record page
-    private JLabel locationLabel;
     private JLabel nameLabel;
     private JLabel addressLabel;
     private JLabel treatmentLabel;
     private JLabel dateOfTreatmentLabel;
 
     //Inputs for the medical record page
+    private JRadioButtonMenuItem currentLocation;
+    private JRadioButtonMenuItem newLocation;
+    private JPanel newLocationJPanel;
+    private JPanel existingLocationJPanel;
+    private JPanel locationSelection;
     private JTextField nameInput;
     private JTextField addressInput;
     private JTextField treatmentInput;
     private JTextField dateOfTreatmentInput;
+    private JScrollPane resultsMR;
+    private DefaultListModel<String> listModelMR = new DefaultListModel<>();
+    private JList<String> listMR = new JList<>(listModelMR);
 
     //Buttons for medical record page
     private JButton backHomeButtonMR;
@@ -105,16 +127,20 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         //Creates the layout to switch between pages
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
+        mainPanel = this.setupMain();
+        medicalPanel = this.medicalRecordPage();
+        familyRelationsPanel = this.familyRelationsPage();
 
         //Add all pages to the card panel:
-        cardPanel.add(this.setupMain(), "main");
-        cardPanel.add(this.medicalRecordPage(), "medical");
-        cardPanel.add(this.familyRelationsPage(), "relation");
+        cardPanel.add(mainPanel, "main");
+        cardPanel.add(medicalPanel, "medical");
+        cardPanel.add(familyRelationsPanel, "relation");
 
         //Add cardPanel to the main panel
         getContentPane().add(cardPanel);
     }
 
+    /*Main page related functions */
     private JPanel setupMain(){
         title = new JLabel("Welcome to the Disaster Victim Logging Page");
 
@@ -208,67 +234,101 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         return mainPanel;
     }
 
+    /*Medical Record page related functions */
     private JPanel medicalRecordPage(){
-        //Set all labels
-        locationLabel = new JLabel("Please enter all location details here: ");
-        nameLabel = new JLabel("Name");
-        addressLabel = new JLabel("Address");
-        treatmentLabel = new JLabel("Enter treatment details");
-        dateOfTreatmentLabel = new JLabel("Enter date of treatment");
-
         //Set all inputs
-        nameInput = new JTextField("e.g Telus Spark Centre", 15);
-        addressInput = new JTextField("e.g 123 Sesame Street", 15);
-        treatmentInput = new JTextField("e.g Wrist Surgery");
-        dateOfTreatmentInput = new JTextField("e.g 2022-09-09", 15);
+        locationSelection = new JPanel(new GridLayout(1, 2));
+        ButtonGroup group = new ButtonGroup();
+        currentLocation = new JRadioButtonMenuItem("Current Location");
+        newLocation = new JRadioButtonMenuItem("Create a new location");
+        group.add(currentLocation);
+        group.add(newLocation);
+        locationSelection.add(currentLocation);
+        locationSelection.add(newLocation);
+        newLocationJPanel = this.newLocationPanel();
 
         //Create all buttons
         backHomeButtonMR = new JButton("Home");
         submitMRInfoButton = new JButton("Submit");
 
+        //Add action listeners
+        backHomeButtonMR.addActionListener(this);
+        submitMRInfoButton.addActionListener(this);
+        currentLocation.addActionListener(this);
+        newLocation.addActionListener(this);
+
         //Create all panels
         JPanel headerPanel = new JPanel(new FlowLayout());
-        JPanel contentPanel = new JPanel(new GridLayout(3, 1));
         JPanel buttonPanel = new JPanel(new GridLayout(1,2));
 
         //Create header panel
         headerPanel.add(title);
-
-        //Create content panel
-        JPanel locationPanel = new JPanel(new GridLayout(3, 1));
-        locationPanel.add(locationLabel);
-        JPanel locationSub1 = new JPanel(new GridLayout(1,2));
-        locationSub1.add(nameLabel);
-        locationSub1.add(nameInput);
-        locationPanel.add(locationSub1);
-        JPanel locationSub2 = new JPanel(new GridLayout(1, 2));
-        locationSub2.add(addressLabel);
-        locationSub2.add(addressInput);
-        locationPanel.add(locationSub2);
-        JPanel sub1 = new JPanel(new GridLayout(1, 2));
-        sub1.add(treatmentLabel);
-        sub1.add(treatmentInput);
-        JPanel sub2 = new JPanel(new GridLayout(1, 2));
-        sub2.add(dateOfTreatmentLabel);
-        sub2.add(dateOfTreatmentInput);
-        contentPanel.add(locationPanel);
-        contentPanel.add(sub1);
-        contentPanel.add(sub2);
 
         //Create buttonsPanel
         buttonPanel.add(backHomeButtonMR);
         buttonPanel.add(submitMRInfoButton);
 
         //Create final panel
-        JPanel medicalRecordPanel = new JPanel();
-        medicalRecordPanel.setLayout(new BoxLayout(medicalRecordPanel, BoxLayout.Y_AXIS));
+        JPanel medicalRecordPanel = new JPanel(new GridLayout(4, 1));
         medicalRecordPanel.add(headerPanel);
-        medicalRecordPanel.add(contentPanel);
+        medicalRecordPanel.add(locationSelection);
+        medicalRecordPanel.add(new JPanel());
+        this.newLocationPanel().setVisible(false);
         medicalRecordPanel.add(buttonPanel); 
 
         return medicalRecordPanel;
     }
 
+    private JPanel newLocationPanel(){
+        nameLabel = new JLabel("Location Name");
+        addressLabel = new JLabel("Location Address");
+        treatmentLabel = new JLabel("Enter treatment details");
+        dateOfTreatmentLabel = new JLabel("Enter date of treatment");
+
+        nameInput = new JTextField("e.g Telus Spark Centre", 15);
+        addressInput = new JTextField("e.g 123 Sesame Street", 15);
+        treatmentInput = new JTextField("e.g Wrist Surgery");
+        dateOfTreatmentInput = new JTextField("e.g 2022-09-09", 15);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        JPanel labelPanel = new JPanel(new GridLayout(4, 1));
+        JPanel contentPanel = new JPanel(new GridLayout(4, 1));
+
+        labelPanel.add(nameLabel);
+        labelPanel.add(addressLabel);
+        labelPanel.add(dateOfTreatmentLabel);
+        labelPanel.add(treatmentLabel);
+        contentPanel.add(nameInput);
+        contentPanel.add(addressInput);
+        contentPanel.add(dateOfTreatmentInput);
+        contentPanel.add(treatmentInput);
+        panel.add(labelPanel, BorderLayout.WEST);
+        panel.add(contentPanel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel existingLocationPanel(){
+        existingLocationJPanel = new JPanel(new FlowLayout());
+        listModelMR = new DefaultListModel<>();
+        listMR = new JList<>(listModelMR);
+        listMR.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        resultsMR = new JScrollPane(listMR);
+        ResultSet locations = this.dbConnect.retrieveAllLocations();
+        try{
+            while(locations.next()){
+                String locationName = locations.getString("name");
+                listModelMR.addElement(locationName);
+            }
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        existingLocationJPanel.add(resultsMR);
+        return existingLocationJPanel;
+    }
+
+    /*Family Relation page related functions */
     private JPanel familyRelationsPage(){
         title = new JLabel("Family Relations Page");
 
@@ -361,12 +421,6 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
          * utilize the interface!!
          */
         
-        //Create the DisasterVictim based on the info entered
-        ArrayList<MedicalRecord> medicalRecords = new ArrayList<>();
-        ArrayList<DisasterVictim> relations = new ArrayList<>();
-        ArrayList<String> relationships = new ArrayList<>();
-        ArrayList<FamilyRelation> familyRelations = new ArrayList<>();
-        DisasterVictim victim;
         //All navigational buttons
         if(event.getSource() == medicalRecordsButton){
             cardLayout.show(cardPanel, "medical");
@@ -443,6 +497,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
             victim.setFamilyConnections(familyRelations);
             victim.setMedicalRecords(medicalRecords);
+            System.out.println(victim.getMedicalRecords().size());
             if(!this.dbConnect.validLocationID((int) locationIDSpinner.getValue())){
                 JOptionPane.showMessageDialog(this, "Invalid Location ID");
                 validInfo = false;
@@ -455,6 +510,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
         }
 
+        /* Medical Records Related Info */
         if(event.getSource() == submitMRInfoButton){
             boolean validData = true;
             Location location = null;
@@ -489,11 +545,29 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             //Adds it to the arrayList if all inputs are valid
             if(validData && location != null){
                 medicalRecords.add(new MedicalRecord(location, treatmentDetailString, dateOfTreatmentString));
+                System.out.println(medicalRecords.size());
                 JOptionPane.showMessageDialog(this, "Medical Record created and added successfully");
                 cardLayout.show(cardPanel, "main");
             }
         }
 
+        if(event.getSource() == newLocation){
+            newLocationJPanel = newLocationPanel();
+            medicalPanel.remove(2);
+            medicalPanel.add(newLocationJPanel, 2);
+            medicalPanel.revalidate();
+            medicalPanel.repaint();
+        }
+
+        if(event.getSource() == currentLocation){
+            existingLocationJPanel = existingLocationPanel();
+            medicalPanel.remove(2);
+            medicalPanel.add(existingLocationJPanel, 2);
+            medicalPanel.revalidate();
+            medicalPanel.repaint();
+        }
+
+        /* Submit Relations Related Info */
         if(event.getSource() == submitRelations){
             DisasterVictim newRelation;
             boolean validInfo = true;
