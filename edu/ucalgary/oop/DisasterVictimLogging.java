@@ -309,7 +309,23 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     }
 
     private JPanel existingLocationPanel(){
-        existingLocationJPanel = new JPanel(new FlowLayout());
+        //Treatment details and date
+        treatmentLabel = new JLabel("Enter treatment details");
+        dateOfTreatmentLabel = new JLabel("Enter date of treatment");
+        treatmentInput = new JTextField("e.g Wrist Surgery");
+        dateOfTreatmentInput = new JTextField("e.g 2022-09-09", 15);
+        JPanel panel = new JPanel(new BorderLayout());
+        JPanel labelPanel = new JPanel(new GridLayout(2, 1));
+        JPanel contentPanel = new JPanel(new GridLayout(2, 1));
+        labelPanel.add(dateOfTreatmentLabel);
+        labelPanel.add(treatmentLabel);
+        contentPanel.add(dateOfTreatmentInput);
+        contentPanel.add(treatmentInput);
+        panel.add(labelPanel, BorderLayout.WEST);
+        panel.add(contentPanel, BorderLayout.CENTER);
+
+        //Location setup
+        existingLocationJPanel = new JPanel(new GridLayout(2,1));
         listModelMR = new DefaultListModel<>();
         listMR = new JList<>(listModelMR);
         listMR.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -325,6 +341,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             ex.printStackTrace();
         }
         existingLocationJPanel.add(resultsMR);
+        existingLocationJPanel.add(panel);
         return existingLocationJPanel;
     }
 
