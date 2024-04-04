@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 
 public class DisasterVictimLogging extends JFrame implements ActionListener{
+    private boolean inquiryOpen;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private DBAccess dbConnect;
@@ -135,7 +136,16 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
 
     }
 
+    public void setInquiryOpen(boolean status){
+        this.inquiryOpen = status;
+    }
+
+    public boolean getInquiryOpen(){
+        return this.inquiryOpen;
+    }
+
     public void setupGUI(){
+        inquiryOpen = false;
         //Creates the layout to switch between pages
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -499,13 +509,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     }
 
     /*Handle all button presses and option selections */
-    public void actionPerformed(ActionEvent event){
-        /*Brief summary of what it's doing right now
-         * There is no instruction for how to check a stored location
-         * so we're just creating a new instance for every time you 
-         * utilize the interface!!
-         */
-        
+    public void actionPerformed(ActionEvent event){       
         //All navigational buttons
         if(event.getSource() == medicalRecordsButton){
             cardLayout.show(cardPanel, "medical");
@@ -587,7 +591,12 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
                 this.dbConnect.addDisasterVictim(victim, (int) locationIDSpinner.getValue(), relations);
                 JOptionPane.showMessageDialog(this, "DisasterVictim created successfully!");
                 this.dbConnect.close();
-                System.exit(0);
+                if(this.getInquiryOpen()){
+                    dispose();
+                }
+                else{
+                    System.exit(0);
+                }
             }
         }
 

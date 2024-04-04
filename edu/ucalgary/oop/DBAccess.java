@@ -47,6 +47,35 @@ public class DBAccess {
         }
     }
 
+    public ResultSet searchDisasterVictim(String fname){
+        try{
+            String searchQuery = "select * from disaster_victim where lower(fname) like lower(?)";
+            PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
+            searchStatement.setString(1, '%' + fname + '%');
+            ResultSet result = searchStatement.executeQuery();
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public ResultSet searchDisasterVictim(String fname, String lname){
+        try{
+            String searchQuery = "select * from disaster_victim where (lower(fname) like lower(?)) and (lower(lname) like lower(?))";
+            PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
+            searchStatement.setString(1, '%' + fname + '%');
+            searchStatement.setString(2, '%' + lname + '%');
+            ResultSet result = searchStatement.executeQuery();
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
     public ResultSet retrieveDisasterVictim(String fname, String lname){
         try{
             String searchQuery = "select * from disaster_victim where fname = (?) and lname = (?)";
