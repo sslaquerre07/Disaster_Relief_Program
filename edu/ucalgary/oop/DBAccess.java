@@ -2,6 +2,9 @@ package edu.ucalgary.oop;
 
 //Import java sql methods
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 
@@ -22,7 +25,7 @@ public class DBAccess {
 
     public ResultSet retrieveInquirer(String fname, String lname){
         try{
-            String retrieveQuery = "select * from inquirer where fname = (?) and lname = (?)";
+            String retrieveQuery = "select * from inquirer where firstName = (?) and lastName = (?)";
             PreparedStatement retrieveStatement = this.dbConnect.prepareStatement(retrieveQuery);
             retrieveStatement.setString(1, fname);
             retrieveStatement.setString(2, lname);
@@ -159,6 +162,46 @@ public class DBAccess {
 
 
     /*All data insertion related queries */
+    public void addInquirer(String fname, String lname, String phone){
+        try{
+            String addQuery = "INSERT INTO INQUIRER (firstName, lastName, phoneNumber) VALUES (?, ?, ?)";
+            PreparedStatement addStatement = this.dbConnect.prepareStatement(addQuery);
+            addStatement.setString(1, fname);
+            addStatement.setString(2, lname);
+            addStatement.setString(3, phone);
+            addStatement.executeUpdate();
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    public void addInquiry(int social_id, int location_id, int inquirer_id, Inquiry inquiry){
+        try{
+            String addQuery = "INSERT INTO INQUIRY_LOG (inquirer, callDate, details, location_id, social_id) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement addStatement = this.dbConnect.prepareStatement(addQuery);
+            addStatement.setInt(1, inquirer_id);
+            DateFormat dateFormat = (new SimpleDateFormat("yyyy-MM-dd"));
+            java.util.Date date = dateFormat.parse(inquiry.getDateOfInquiry());
+            java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+            addStatement.setDate(2, sqlDate);
+            addStatement.setString(3, inquiry.getInfoProvided());
+            addStatement.setInt(4, location_id);
+            if(social_id != -1){
+                addStatement.setInt(5, social_id);
+            }
+            else{
+                addStatement.setNull(5, Types.INTEGER);
+            }
+            addStatement.executeUpdate();
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        catch(ParseException ex){
+            ex.printStackTrace();
+        }
+    }
 
     public void addDisasterVictim(DisasterVictim victim, int locationID, ArrayList<DisasterVictim> relatives){
         try{

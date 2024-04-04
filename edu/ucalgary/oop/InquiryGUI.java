@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class InquiryGUI extends JFrame implements ActionListener{
+    private Location inquiry_location = new Location("Default", "Default");
+    private DisasterVictim inquiry_victim = new DisasterVictim("", "2024-09-09", 0);
+
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private DBAccess dbConnection;
@@ -281,9 +284,6 @@ public class InquiryGUI extends JFrame implements ActionListener{
     }
 
     public void actionPerformed(ActionEvent e){
-        //Variables to be saved for submission
-        Location inquiry_location = new Location("Default", "Default");
-        DisasterVictim inquiry_victim = new DisasterVictim("", "2024-09-09", 0);
         /*Main Page Actions */
         if(e.getSource() == loginButton && centralWorker.isSelected()){
             Component toBeRemoved = inquiryPage.getComponent(1);
@@ -392,24 +392,48 @@ public class InquiryGUI extends JFrame implements ActionListener{
             }
 
             if(validData){
+                int socialID = -1;
+                int locationID = -1;
+                int inquirerID = -1;
                 if(victimSelected){
-                    int socialID = 0;
-                    int locationID = 0;
-                    //Retrival of all foreign keys from the database
+                    //Retrival of victim if necessary
                     try{
                         ResultSet victimSet = this.dbConnection.retrieveDisasterVictim(inquiry_victim.getFirstName(), inquiry_victim.getLastName());
-                        ResultSet locationSet = this.dbConnection.retrieveLocation(inquiry_location.getName());
                         if(victimSet.next()){
                             socialID = victimSet.getInt("social_id");
-                        }
-                        if(locationSet.next()){
-                            locationID = locationSet.getInt("location_id");
                         }
                     }
                     catch(SQLException ex){
                         ex.printStackTrace();
                     }
                 }
+                //Retrieve all data other than the victim
+                try{
+                    ResultSet locationSet = this.dbConnection.retrieveLocation(inquiry_location.getName());
+                    ResultSet inquirerSet = this.dbConnection.retrieveInquirer(inquirerFname, inquirerLname);
+                    if(locationSet.next()){
+                        locationID = locationSet.getInt("location_id");
+                    }
+                    if(inquirerSet.next()){
+                        inquirerID = inquirerSet.getInt("id");
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(this, "Inquirer does not exist, creating now");
+                        this.dbConnection.addInquirer(inquirerFname, inquirerLname, inquirerPhone);
+                        inquirerSet = this.dbConnection.retrieveInquirer(inquirerFname, inquirerLname);
+                        //Will get it now since it has just been added
+                        if(inquirerSet.next()){
+                            inquirerID = inquirerSet.getInt("id");
+                        }
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+                Inquiry newInquiry = new Inquiry(inquiry_victim, dateOfEntry, infoProvided);
+                this.dbConnection.addInquiry(socialID, locationID, inquirerID, newInquiry);
+                JOptionPane.showMessageDialog(this, "Successfully added inquiry");
+                System.exit(0);
             }
         }
 
