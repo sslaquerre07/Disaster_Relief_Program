@@ -7,9 +7,6 @@ import java.util.ArrayList;
 
 public class DBAccess {
     protected Connection dbConnect;
-    protected ResultSet inquirerResults;
-    protected ResultSet inquiryLogResults;
-    protected ResultSet locationResults;
 
     //Constructor
     public DBAccess(){
@@ -21,32 +18,13 @@ public class DBAccess {
         } 
     }
 
-    //Sets the inquirer results variable to the current results from the DB
-    protected void retrieveInquirers(){
+    public ResultSet retrieveLocation(String locationName){
         try{
-            Statement selectInquirers = dbConnect.createStatement();
-            this.inquirerResults = selectInquirers.executeQuery("select * from inquirer");
-        }
-        catch(SQLException ex){
-            ex.printStackTrace();
-        }
-    }
-
-    //Sets the inquiryLog results variable to the current results from the DB
-    protected void retrieveInquiryLogResults(){
-        try{
-            Statement selectInquiryLog = dbConnect.createStatement();
-            this.inquiryLogResults = selectInquiryLog.executeQuery("select * from inquiry_log");
-        }
-        catch(SQLException ex){
-            ex.printStackTrace();
-        }
-    }
-
-    protected ResultSet retrieveAllLocations(){
-        try{
-            Statement selectLocations = dbConnect.createStatement();
-            return selectLocations.executeQuery("SELECT * FROM LOCATION_TABLE");
+            String getLocation = "select * from location_table where name = (?)";
+            PreparedStatement getLocationStmt = this.dbConnect.prepareStatement(getLocation);
+            getLocationStmt.setString(1, locationName);
+            ResultSet result = getLocationStmt.executeQuery();
+            return result;
         }
         catch(SQLException ex){
             ex.printStackTrace();
@@ -54,18 +32,55 @@ public class DBAccess {
         }
     }
 
-    protected void searchInquiryLogResults(String searchTerm){
+    //Sets the inquirer results variable to the current results from the DB
+    public ResultSet retrieveInquirers(){
+        try{
+            Statement selectInquirers = dbConnect.createStatement();
+            ResultSet result = selectInquirers.executeQuery("select * from inquirer");
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    //Sets the inquiryLog results variable to the current results from the DB
+    public ResultSet retrieveInquiryLogResults(){
+        try{
+            Statement selectInquiryLog = dbConnect.createStatement();
+            ResultSet result = selectInquiryLog.executeQuery("select * from inquiry_log");
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    protected ResultSet retrieveAllLocations(){
+        try{
+            Statement selectLocations = dbConnect.createStatement();
+            ResultSet result =selectLocations.executeQuery("select * from location_table");
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public ResultSet searchInquiryLogResults(String searchTerm){
         try{
             String searchQuery = "SELECT * FROM inquiry_log WHERE LOWER(details) LIKE LOWER(?)";
             PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
             searchStatement.setString(1, "%" + searchTerm.trim() + "%");
-            this.inquiryLogResults = searchStatement.executeQuery();
+            ResultSet result = searchStatement.executeQuery();
+            return result;
         }
         catch(SQLException ex){
             ex.printStackTrace();
-        }
-        catch(Error e){
-            e.printStackTrace();
+            return null;
         }
     }
 
@@ -122,6 +137,19 @@ public class DBAccess {
         }
     }
 
+    protected void addLocation(Location location){
+        try{
+            String addLocation = "INSERT INTO LOCATION_TABLE (name, address) VALUES (?, ?)";
+            PreparedStatement addLocationQuery = this.dbConnect.prepareStatement(addLocation);
+            addLocationQuery.setString(1, location.getName());
+            addLocationQuery.setString(2, location.getAddress());
+            addLocationQuery.executeUpdate();
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
     private void addMedicalRecords(ArrayList<MedicalRecord> list, int location_id, int social_id){
         try{
             for(int i = 0; i < list.size(); i++){
@@ -130,7 +158,15 @@ public class DBAccess {
                 Date date = Date.valueOf(list.get(i).getDateOfTreatment());
                 addMRStatement.setDate(1, date);
                 addMRStatement.setString(2, list.get(i).getTreatmentDetails());
-                addMRStatement.setInt(3, location_id);
+                try{
+                    ResultSet locationInfo = this.retrieveLocation(list.get(i).getLocation().getName());
+                    if(locationInfo.next()){
+                        addMRStatement.setInt(3, locationInfo.getInt("location_id"));
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
                 addMRStatement.setInt(4, social_id);
                 addMRStatement.executeUpdate();
                 System.out.println("Success");
@@ -168,30 +204,9 @@ public class DBAccess {
         }
     }
 
-    public ResultSet getInquirers(){
-        this.retrieveInquirers();
-        return this.inquirerResults;
-    }
-
-    public ResultSet getInquiryLog(){
-        this.retrieveInquiryLogResults();
-        return this.inquiryLogResults;
-    }
-
-    public ResultSet searchInquiryLog(String searchTerm){
-        this.searchInquiryLogResults(searchTerm);
-        return this.inquiryLogResults;
-    }
-
     //Makes sure that everything is being closed correctly
     public void close(){
         try{
-            if(this.inquirerResults != null){
-                this.inquirerResults.close();
-            }
-            if(this.inquiryLogResults != null){
-                this.inquiryLogResults.close();
-            }
             this.dbConnect.close();
         }
         catch(SQLException e){
@@ -203,7 +218,7 @@ public class DBAccess {
     public static void main(String[] args) {
         DBAccess myJBDC = new DBAccess();
 
-        ResultSet results = myJBDC.searchInquiryLog("melinda");
+        ResultSet results = myJBDC.searchInquiryLogResults("melinda");
         System.out.println(myJBDC.stringifyResults(results));
         myJBDC.close();
     }

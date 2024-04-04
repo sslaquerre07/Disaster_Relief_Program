@@ -81,6 +81,8 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JList<String> listMR = new JList<>(listModelMR);
 
     //Buttons for medical record page
+    private JRadioButtonMenuItem currentVictim;
+    private JRadioButtonMenuItem newVictim;
     private JButton backHomeButtonMR;
     private JButton submitMRInfoButton;
 
@@ -349,6 +351,36 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JPanel familyRelationsPage(){
         title = new JLabel("Family Relations Page");
 
+        //Add Button
+        submitRelations = new JButton("Submit");
+        backHomeButtonFR = new JButton("Home");
+
+        //Add Button Listeners
+        submitRelations.addActionListener(this);
+        backHomeButtonFR.addActionListener(this);
+
+        //Panels for the home page
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1));
+        JPanel submitPanel = new JPanel();
+        submitPanel.setLayout(new FlowLayout());
+
+        //Adding all of the components
+        headerPanel.add(title);
+        buttonPanel.add(submitRelations);
+        buttonPanel.add(backHomeButtonFR);
+
+        //Main panel that will hold everything:
+        JPanel relationPanel = new JPanel(new BorderLayout());
+        relationPanel.add(headerPanel, BorderLayout.NORTH);
+        relationPanel.add(new JPanel(), BorderLayout.CENTER);
+        relationPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return relationPanel;
+    }
+
+    private JPanel newPersonPanel(){
         //Set all labels
         fnLabelFR = new JLabel("First Name: ");
         lnLabelFR = new JLabel("Last Name:(Optional) ");
@@ -383,25 +415,9 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         commentsInputFR = new JTextField("e.g Lost in flood", 15);
         relationshipToInput = new JTextField("e.g sibling", 15);
 
-        //Add Button
-        submitRelations = new JButton("Submit");
-        backHomeButtonFR = new JButton("Home");
-
-        //Add Button Listeners
-        submitRelations.addActionListener(this);
-        backHomeButtonFR.addActionListener(this);
-
-        //Panels for the home page
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new FlowLayout());
         JPanel titlePanel = new JPanel(new GridLayout(8,1));
         JPanel inputPanel = new JPanel(new GridLayout(8,1));
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1));
-        JPanel submitPanel = new JPanel();
-        submitPanel.setLayout(new FlowLayout());
 
-        //Adding all of the components
-        headerPanel.add(title);
         titlePanel.add(fnLabelFR);
         titlePanel.add(lnLabelFR);
         titlePanel.add(ageLabelFR);
@@ -418,19 +434,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         inputPanel.add(dietaryInputFR);
         inputPanel.add(commentsInputFR);
         inputPanel.add(relationshipToInput);
-        buttonPanel.add(submitRelations);
-        buttonPanel.add(backHomeButtonFR);
 
-        //Main panel that will hold everything:
-        JPanel relationPanel = new JPanel(new BorderLayout());
-        relationPanel.add(headerPanel, BorderLayout.NORTH);
-        relationPanel.add(titlePanel, BorderLayout.WEST);
-        relationPanel.add(inputPanel, BorderLayout.CENTER);
-        relationPanel.add(buttonPanel, BorderLayout.SOUTH);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(titlePanel, BorderLayout.WEST);
+        mainPanel.add(inputPanel, BorderLayout.CENTER);
 
-        return relationPanel;
+        return mainPanel;
     }
 
+    /*Handle all button presses and option selections */
     public void actionPerformed(ActionEvent event){
         /*Brief summary of what it's doing right now
          * There is no instruction for how to check a stored location
@@ -495,10 +507,6 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             if(!comments.trim().equals("") && !comments.trim().equals("e.g Lost in flood")){
                 victim.setComments(comments);
             }
-            else{
-                JOptionPane.showMessageDialog(this, "Invalid comments");
-                validInfo = false;
-            }
             //Retrieve all dietary restrictions
             ArrayList<DietaryRestriction> selectedOptions = new ArrayList<>();
             int [] selectedIndices = list.getSelectedIndices();
@@ -561,7 +569,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
             //Adds it to the arrayList if all inputs are valid
             if(validData && location != null){
-                //Add location to the DB here
+                this.dbConnect.addLocation(location);
                 medicalRecords.add(new MedicalRecord(location, treatmentDetailString, dateOfTreatmentString));
                 System.out.println(medicalRecords.size());
                 JOptionPane.showMessageDialog(this, "Medical Record created and added successfully");
@@ -569,7 +577,44 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
         }
         if (event.getSource() == submitMRInfoButton && currentLocation.isSelected()){
-            //Deal with when a current location is chosen
+            boolean validData = true;
+            String treatmentDetailString = treatmentInput.getText();
+            String dateOfTreatmentString = dateOfTreatmentInput.getText();
+            int selectedIndex = listMR.getSelectedIndex();
+
+            //Validity of inputs
+            if(treatmentDetailString.trim().equals("") || treatmentDetailString.trim().equals("e.g Wrist Surgery")){
+                JOptionPane.showMessageDialog(this, "Invalid treatment details");
+                validData = false;
+            }
+            if(dateOfTreatmentString.trim().equals("") || dateOfTreatmentString.trim().equals("e.g 2022-09-09") || !DisasterVictim.isValidDateFormat(dateOfTreatmentString)){
+                JOptionPane.showMessageDialog(this, "Invalid treatment date");
+                validData = false;
+            }
+            if(selectedIndex == -1){
+                JOptionPane.showMessageDialog(this, "Please select a location");
+                validData = false;
+            }
+
+            if(validData){
+                //Retrieve selected location data
+                String locationName = listMR.getModel().getElementAt(selectedIndex);
+                ResultSet locationInfo = this.dbConnect.retrieveLocation(locationName);
+                try{
+                    if(locationInfo.next()){
+                        medicalRecords.add(new MedicalRecord(new Location(locationName, locationInfo.getString("address")), treatmentDetailString, dateOfTreatmentString));
+                        JOptionPane.showMessageDialog(this, "Medical Record created and added successfully");
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(this, "Something went wrong with creating your medical record");
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+                System.out.println(medicalRecords.size());
+                cardLayout.show(cardPanel, "main");
+            }
         }
 
         if(event.getSource() == newLocation){
