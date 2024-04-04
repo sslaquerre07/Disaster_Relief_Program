@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class InquiryGUI extends JFrame implements ActionListener{
     private CardLayout cardLayout;
@@ -22,16 +25,27 @@ public class InquiryGUI extends JFrame implements ActionListener{
     private JPanel currentLocations;
     private JRadioButtonMenuItem centralWorker;
     private JRadioButtonMenuItem locationWorker;
+    private JScrollPane locationScrollPane;
+    private DefaultListModel<String> locationModel = new DefaultListModel<>();
+    private JList<String> locationList = new JList<>(locationModel);
     private JButton loginButton;
 
     //Components of the inquiry page
+    private boolean victimSelected;
+    private JPanel inquiryPage;
     private JLabel title;
     private JLabel dateOfInquiryLabel;
     private JLabel infoProvidedLabel;
+    private JLabel inquirerFirstNameLabel;
+    private JLabel inquirerLastNameLabel;
+    private JLabel inquirerPhoneLabel;
     private JLabel locationNameLabel;
     private JLabel locationAddressLabel;
     private JTextField dateOfInquiryInput;
     private JTextField infoProvidedInput;
+    private JTextField inquirerFirstNameInput;
+    private JTextField inquirerLastNameInput;
+    private JTextField inquirerPhoneInput;
     private JTextField locationNameInput;
     private JTextField locationAddressInput;
 
@@ -57,6 +71,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
         super("Inquiry Logging GUI");
         //Establish connection to database to search for victims
         this.dbConnection = new DBAccess();
+        victimSelected = false;
 
         setupGUI();
         setSize(500, 300);
@@ -70,10 +85,11 @@ public class InquiryGUI extends JFrame implements ActionListener{
 
         //Creating the dynamic pages
         loginPage = this.setupLogin(false);
+        inquiryPage = this.setupInquiryPage();
 
         //Add all pages to the card panel:
         cardPanel.add(loginPage, "main");
-        cardPanel.add(this.setupInquiryPage(), "inquiry");
+        cardPanel.add(inquiryPage, "inquiry");
         cardPanel.add(this.setupSearchVictimPage(), "search");
 
         //Add cardPanel to the main panel
@@ -100,7 +116,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
 
         //Define all panels
         JPanel mainPanel = new JPanel(new GridLayout(4, 1));
-        currentLocations = this.locationSelector();
+        currentLocations = this.locationSelector(false);
         JPanel headerPanel = new JPanel(new FlowLayout());
         JPanel locationPanel = new JPanel(new GridLayout(1, 2));
         JPanel buttonPanel = new JPanel (new FlowLayout());
@@ -123,40 +139,32 @@ public class InquiryGUI extends JFrame implements ActionListener{
         return mainPanel;
     }
 
-    private JPanel locationSelector(){
+    private JPanel locationSelector(boolean inquiryPageFlag){
         //Location setup
         JPanel existingLocationPanel = new JPanel();
         existingLocationPanel.setLayout(new BoxLayout(existingLocationPanel, BoxLayout.Y_AXIS));
-        DefaultListModel<String> listModelInq = new DefaultListModel<>();
-        JList<String> listInq = new JList<>(listModelInq);
-        listInq.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane resultsInq = new JScrollPane(listInq);
+        locationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        locationScrollPane = new JScrollPane(locationList);
         ResultSet locations = this.dbConnection.retrieveAllLocations();
         try{
             while(locations.next()){
                 String locationName = locations.getString("name");
-                listModelInq.addElement(locationName);
+                locationModel.addElement(locationName);
             }
         }
         catch(SQLException ex){
             ex.printStackTrace();
         }
-        existingLocationPanel.add(new JLabel("Please select your location:(if location not listed, please contact supervisor)"));
-        existingLocationPanel.add(resultsInq);
+        if(!inquiryPageFlag){
+            existingLocationPanel.add(new JLabel("Please select your location:(if location not listed, please contact supervisor)"));
+        }
+        existingLocationPanel.add(locationScrollPane);
         return existingLocationPanel;
     }
 
     private JPanel setupInquiryPage(){
         //Labels and inputs
         title = new JLabel("Welcome to the Inquiry Logging Page");
-        dateOfInquiryLabel = new JLabel("Please enter the date of inquiry");
-        infoProvidedLabel = new JLabel("Please enter any additional info provided");
-        locationNameLabel = new JLabel("Enter Location Name");
-        locationAddressLabel = new JLabel("Enter Location Address");
-        dateOfInquiryInput = new JTextField("e.g 2004-09-09");
-        infoProvidedInput = new JTextField("e.g Volunteer opportunities?");
-        locationNameInput = new JTextField("e.g Telus Spark Center");
-        locationAddressInput = new JTextField("e.g 123 Sesame Street");
 
         //Buttons
         searchVictimsButton = new JButton("Search For Victims");
@@ -166,8 +174,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
         //Panels
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel headerPanel = new JPanel(new FlowLayout());
-        JPanel labelPanel = new JPanel(new GridLayout(4,1));
-        JPanel inputPanel = new JPanel(new GridLayout(4,1));
+        JPanel contentPanel = this.setupWorkerInput(false);
         JPanel buttonPanel = new JPanel(new GridLayout(3,1));
 
         //Add action listeners to the buttons
@@ -177,21 +184,48 @@ public class InquiryGUI extends JFrame implements ActionListener{
 
         //Add to Panels
         headerPanel.add(title);
-        labelPanel.add(dateOfInquiryLabel);
-        labelPanel.add(infoProvidedLabel);
-        labelPanel.add(locationNameLabel);
-        labelPanel.add(locationAddressLabel);
-        inputPanel.add(dateOfInquiryInput);
-        inputPanel.add(infoProvidedInput);
-        inputPanel.add(locationNameInput);
-        inputPanel.add(locationAddressInput);
         buttonPanel.add(searchVictimsButton);
         buttonPanel.add(createNewPersonButton);
         buttonPanel.add(submitInquiry);
         mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(labelPanel, BorderLayout.WEST);
-        mainPanel.add(inputPanel, BorderLayout.CENTER);
+        mainPanel.add(contentPanel, BorderLayout.WEST);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return mainPanel;
+    }
+
+    private JPanel setupWorkerInput(boolean workerflag){
+        dateOfInquiryLabel = new JLabel("Please enter the date of inquiry");
+        infoProvidedLabel = new JLabel("Please enter any additional info provided");
+        inquirerFirstNameLabel = new JLabel("Inquirer First Name: ");
+        inquirerLastNameLabel = new JLabel("Inquirer Last Name: ");
+        inquirerPhoneLabel = new JLabel("Inquirer Phone Number: ");
+        dateOfInquiryInput = new JTextField("e.g 2004-09-09", 15);
+        infoProvidedInput = new JTextField("e.g Volunteer opportunities?", 15);
+        inquirerFirstNameInput = new JTextField("e.g Logan", 15);
+        inquirerLastNameInput = new JTextField("e.g Washington", 15);
+        inquirerPhoneInput = new JTextField("e.g 403-111-1121", 15);
+        
+        JPanel labelPanel = new JPanel(new GridLayout(6, 1));
+        JPanel inputPanel = new JPanel(new GridLayout(6, 1));
+
+        labelPanel.add(dateOfInquiryLabel);
+        labelPanel.add(infoProvidedLabel);
+        labelPanel.add(inquirerFirstNameLabel);
+        labelPanel.add(inquirerLastNameLabel);
+        labelPanel.add(inquirerPhoneLabel);
+        inputPanel.add(dateOfInquiryInput);
+        inputPanel.add(infoProvidedInput);
+        inputPanel.add(inquirerFirstNameInput);
+        inputPanel.add(inquirerLastNameInput);
+        inputPanel.add(inquirerPhoneInput);
+        if (workerflag){
+            labelPanel.add(new JLabel("Please choose the location of the inquiry"));
+            inputPanel.add(this.locationSelector(true));
+        }
+        JPanel mainPanel = new JPanel(new GridLayout(1, 2));
+        mainPanel.add(labelPanel);
+        mainPanel.add(inputPanel);
 
         return mainPanel;
     }
@@ -247,18 +281,39 @@ public class InquiryGUI extends JFrame implements ActionListener{
     }
 
     public void actionPerformed(ActionEvent e){
+        //Variables to be saved for submission
+        Location inquiry_location = new Location("Default", "Default");
+        DisasterVictim inquiry_victim = new DisasterVictim("", "2024-09-09", 0);
         /*Main Page Actions */
-        if(e.getSource() == loginButton){
-            if(centralWorker.isSelected()){
-                //Just displaying a message for now, switch over to inquiry page when done
-                cardLayout.show(cardPanel, "inquiry");
-            }
-            else if (locationWorker.isSelected()){
-                //Just displaying a message for now, switch over to inquiry page when done
-                cardLayout.show(cardPanel, "inquiry");
+        if(e.getSource() == loginButton && centralWorker.isSelected()){
+            Component toBeRemoved = inquiryPage.getComponent(1);
+            JPanel newComponent = this.setupWorkerInput(true);
+            inquiryPage.remove(toBeRemoved);
+            inquiryPage.add(newComponent, 1);
+            inquiryPage.revalidate();
+            inquiryPage.repaint();
+            cardLayout.show(cardPanel, "inquiry");
+        }
+        if(e.getSource() == loginButton && locationWorker.isSelected()){
+            int selectedIndex = locationList.getSelectedIndex();
+            if(selectedIndex != -1){
+                String locationName = locationList.getSelectedValue();
+                try{
+                    ResultSet result = this.dbConnection.retrieveLocation(locationName);
+                    if (result.next()){
+                        inquiry_location = new Location(locationName, result.getString("address"));
+                        cardLayout.show(cardPanel, "inquiry");
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(this, "There was a problem retrieving your location");
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
             }
             else{
-                JOptionPane.showMessageDialog(this, "Please choose one of the two options");
+                JOptionPane.showMessageDialog(this, "Please select a location before proceeding");
             }
         }
         if(e.getSource() == centralWorker){
@@ -270,7 +325,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
         }
         if(e.getSource() == locationWorker){
             //Set back to no location tab
-            JPanel locations = this.locationSelector();
+            JPanel locations = this.locationSelector(false);
             loginPage.remove(2);
             loginPage.add(locations, 2);
             loginPage.revalidate();
@@ -285,6 +340,77 @@ public class InquiryGUI extends JFrame implements ActionListener{
             DisasterVictimLogging vicitmGUI = new DisasterVictimLogging();
             vicitmGUI.setVisible(true);
             vicitmGUI.setInquiryOpen(true);
+        }
+        if(e.getSource() == submitInquiry){
+            boolean validData = true;
+            String dateOfEntry = dateOfInquiryInput.getText();
+            String infoProvided = infoProvidedInput.getText();
+            String inquirerFname = inquirerFirstNameInput.getText();
+            String inquirerLname = inquirerLastNameInput.getText();
+            String inquirerPhone = inquirerPhoneInput.getText();
+            if(centralWorker.isSelected()){
+                int selectedIndex = locationList.getSelectedIndex();
+                if(selectedIndex == -1){
+                    JOptionPane.showMessageDialog(this, "Please choose a location before submitting");
+                    validData = false;
+                }
+                else{
+                    String locationName = locationList.getSelectedValue();
+                    try{
+                        ResultSet result = this.dbConnection.retrieveLocation(locationName);
+                        if (result.next()){
+                            inquiry_location = new Location(locationName, result.getString("address"));
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(this, "There was a problem retrieving your location");
+                        }
+                    }
+                    catch(SQLException ex){
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if(dateOfEntry.trim().equals("e.g 2004-09-09") || !DisasterVictim.isValidDateFormat(dateOfEntry)){
+                JOptionPane.showMessageDialog(this, "Invalid Date");
+                validData = false;
+            }
+            if(infoProvided.trim() == "e.g Volunteer opportunities?" || infoProvided.trim().equals("")){
+                JOptionPane.showMessageDialog(this, "Invalid Info");
+                validData = false;
+            }
+            if(inquirerFname.trim().equals("e.g Logan") || inquirerFname.trim().equals("")){
+                JOptionPane.showMessageDialog(this, "Invalid Inquirer First Name");
+                validData = false;
+            }
+            if(inquirerLname.trim().equals("e.g Washington") || inquirerLname.trim().equals("")){
+                JOptionPane.showMessageDialog(this, "Invalid Inquirer Last Name");
+                validData = false;
+            }
+            if(inquirerPhone.trim().equals("e.g 403-111-1121") || inquirerPhone.trim().equals("")){
+                JOptionPane.showMessageDialog(this, "Invalid Inquirer Phone Number");
+                validData = false;
+            }
+
+            if(validData){
+                if(victimSelected){
+                    int socialID = 0;
+                    int locationID = 0;
+                    //Retrival of all foreign keys from the database
+                    try{
+                        ResultSet victimSet = this.dbConnection.retrieveDisasterVictim(inquiry_victim.getFirstName(), inquiry_victim.getLastName());
+                        ResultSet locationSet = this.dbConnection.retrieveLocation(inquiry_location.getName());
+                        if(victimSet.next()){
+                            socialID = victimSet.getInt("social_id");
+                        }
+                        if(locationSet.next()){
+                            locationID = locationSet.getInt("location_id");
+                        }
+                    }
+                    catch(SQLException ex){
+                        ex.printStackTrace();
+                    }
+                }
+            }
         }
 
         /*Search Page Actions */
@@ -302,10 +428,8 @@ public class InquiryGUI extends JFrame implements ActionListener{
                 ResultSet results = dbConnection.searchDisasterVictim(fName.trim());
                 try{
                     while(results.next()){
-                        int social_id = results.getInt("social_id");
                         String name = results.getString("fname") + " " + results.getString("lname");
-                        String displayString = "Social_ID: " + social_id + ", Name: " + name;
-                        listModel.addElement(displayString);
+                        listModel.addElement(name);
                     }
                 }
                 catch(SQLException ex){
@@ -316,15 +440,41 @@ public class InquiryGUI extends JFrame implements ActionListener{
                 ResultSet results = dbConnection.searchDisasterVictim(fName.trim(), lName.trim());
                 try{
                     while(results.next()){
-                        int social_id = results.getInt("social_id");
                         String name = results.getString("fname") +  " " + results.getString("lname");
-                        String displayString = "Social_ID: " + social_id + ", Name: " + name;
-                        listModel.addElement(displayString);
+                        listModel.addElement(name);
                     }
                 }
                 catch(SQLException ex){
                     ex.printStackTrace();
                 }
+            }
+        }
+        if(e.getSource() == chooseVictimButton){
+            String name = list.getSelectedValue();
+            String [] nameParts = name.split(" ");
+            ArrayList<String> names = new ArrayList<>(Arrays.asList(nameParts));
+            ResultSet victimInfo = this.dbConnection.retrieveDisasterVictim(names.get(0), names.get(1));
+            try{
+                if(victimInfo.next()){
+                    int age = victimInfo.getInt("age");
+                    if(!victimInfo.wasNull()){
+                        //Just using a temporary date, won't be using for searching later on so it doesn't matter here
+                        inquiry_victim = new DisasterVictim(names.get(0), "2024-04-03", victimInfo.getInt("age"));
+                        inquiry_victim.setLastName(victimInfo.getString("lname"));
+                    }
+                    else{
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        String dateString = sdf.format(victimInfo.getDate("dob"));
+                        inquiry_victim = new DisasterVictim(names.get(0), "2024-04-03", dateString);
+                        inquiry_victim.setLastName(victimInfo.getString("lname"));
+                    }
+                    JOptionPane.showMessageDialog(this, "DisasterVicitm Chosen");
+                    this.victimSelected = true;
+                    cardLayout.show(cardPanel, "inquiry");
+                }
+            }
+            catch(SQLException ex){
+                ex.printStackTrace();
             }
         }
     }

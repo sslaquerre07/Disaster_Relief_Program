@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 
 public class DBAccess {
-    protected Connection dbConnect;
+    private Connection dbConnect;
 
     //Constructor
     public DBAccess(){
@@ -19,6 +19,21 @@ public class DBAccess {
     }
 
     /*All data retrieval related queries */
+
+    public ResultSet retrieveInquirer(String fname, String lname){
+        try{
+            String retrieveQuery = "select * from inquirer where fname = (?) and lname = (?)";
+            PreparedStatement retrieveStatement = this.dbConnect.prepareStatement(retrieveQuery);
+            retrieveStatement.setString(1, fname);
+            retrieveStatement.setString(2, lname);
+            ResultSet result = retrieveStatement.executeQuery();
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
 
     public ResultSet retrieveLocation(String locationName){
         try{
