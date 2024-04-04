@@ -18,6 +18,8 @@ public class DBAccess {
         } 
     }
 
+    /*All data retrieval related queries */
+
     public ResultSet retrieveLocation(String locationName){
         try{
             String getLocation = "select * from location_table where name = (?)";
@@ -37,6 +39,21 @@ public class DBAccess {
         try{
             Statement selectInquirers = dbConnect.createStatement();
             ResultSet result = selectInquirers.executeQuery("select * from inquirer");
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public ResultSet retrieveDisasterVictim(String fname, String lname){
+        try{
+            String searchQuery = "select * from disaster_victim where fname = (?) and lname = (?)";
+            PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
+            searchStatement.setString(1, fname);
+            searchStatement.setString(2, lname);
+            ResultSet result = searchStatement.executeQuery();
             return result;
         }
         catch(SQLException ex){
@@ -84,7 +101,22 @@ public class DBAccess {
         }
     }
 
-    protected void addDisasterVictim(DisasterVictim victim, int locationID){
+    public ResultSet retrieveAllDisasterVictims(){
+        try{
+            Statement victimRetrieval = this.dbConnect.createStatement();
+            ResultSet result = victimRetrieval.executeQuery("select * from disaster_victim");
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+
+    /*All data insertion related queries */
+
+    public void addDisasterVictim(DisasterVictim victim, int locationID, ArrayList<DisasterVictim> relatives){
         try{
             String addVictim = "INSERT INTO DISASTER_VICTIM (fName, lName, dob, age, location_id) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement addVictimStatement = this.dbConnect.prepareStatement(addVictim, Statement.RETURN_GENERATED_KEYS);
@@ -108,6 +140,9 @@ public class DBAccess {
                     if(victim.getMedicalRecords().size() != 0){
                         this.addMedicalRecords(victim.getMedicalRecords(), locationID, social_id);
                     }
+                    if(victim.getFamilyConnections().size() != 0){
+                        this.addFamilyRelations(victim, relatives);
+                    }
                 }
             }
         }
@@ -116,7 +151,7 @@ public class DBAccess {
         }
     }
 
-    protected boolean validLocationID(int location_id){
+    public boolean validLocationID(int location_id){
         try{
             Statement getIDStatement = this.dbConnect.createStatement();
             ResultSet result = getIDStatement.executeQuery("SELECT MAX(location_id) FROM DISASTER_VICTIM");
@@ -137,7 +172,7 @@ public class DBAccess {
         }
     }
 
-    protected void addLocation(Location location){
+    public void addLocation(Location location){
         try{
             String addLocation = "INSERT INTO LOCATION_TABLE (name, address) VALUES (?, ?)";
             PreparedStatement addLocationQuery = this.dbConnect.prepareStatement(addLocation);
@@ -176,6 +211,36 @@ public class DBAccess {
             e.printStackTrace();
         }
     }
+
+    public void addFamilyRelations(DisasterVictim victim, ArrayList<DisasterVictim> relatives){
+        //Getting information for the victim before the loop
+        try{
+            ResultSet person1Info = this.retrieveDisasterVictim(victim.getFirstName(), victim.getLastName());
+            int person1ID = 0;
+            if(person1Info.next()){
+                person1ID = person1Info.getInt("social_id");
+            }
+
+            for(int i = 0; i < relatives.size(); i++){
+                String insertQuery = "INSERT INTO FAMILY_RELATIONS (person1ID, person2ID, relationship) VALUES (?, ?, ?)";
+                PreparedStatement insertStatement = this.dbConnect.prepareStatement(insertQuery);
+                ResultSet person2Info = this.retrieveDisasterVictim(relatives.get(i).getFirstName(), relatives.get(i).getLastName());
+                int person2ID = 0;
+                if(person2Info.next()){
+                    person2ID = person2Info.getInt("social_id");
+                }
+                insertStatement.setInt(1, person1ID);
+                insertStatement.setInt(2, person2ID);
+                insertStatement.setString(3, victim.getFamilyConnections().get(i).getRelationshipTo());
+                insertStatement.executeUpdate();
+            }
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    /*Additional functions */
 
     //Turns results for any table into a string (Helper function)
     public String stringifyResults(ResultSet results){

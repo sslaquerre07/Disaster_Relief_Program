@@ -1,11 +1,14 @@
 package edu.ucalgary.oop;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 //To get current date
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -89,12 +92,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     /*Family Relations page variables */
 
     //Labels for the family relations page
+    private JPanel victimSelection;
+    private JPanel centerPanel;
     private JLabel fnLabelFR;
     private JLabel lnLabelFR;
     private JLabel ageLabelFR;
     private JLabel dobLabelFR;
     private JLabel genderLabelFR;
     private JLabel dietaryLabelFR;
+    private JLabel locationLabelFR;
     private JLabel commentsLabelFR;
     private JLabel relationshipToLabel;
 
@@ -106,9 +112,13 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JTextField genderInputFR;
     private JScrollPane dietaryInputFR;
     private DefaultListModel<DietaryRestriction> listModelFR = new DefaultListModel<>();
+    private JSpinner locationIDSpinnerFR;
     private JList<DietaryRestriction> listFR = new JList<>(listModelFR);
     private JTextField commentsInputFR;
     private JTextField relationshipToInput;
+    private JScrollPane victimResults;
+    private DefaultListModel<String> victimModel = new DefaultListModel<>();
+    private JList<String> victimList = new JList<>(listModelMR);
 
     //Extra button for relations
     private JButton backHomeButtonFR; 
@@ -349,32 +359,44 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
 
     /*Family Relation page related functions */
     private JPanel familyRelationsPage(){
+        //Add all inputs and titles
         title = new JLabel("Family Relations Page");
+        victimSelection = new JPanel(new GridLayout(1, 2));
+        centerPanel = new JPanel();
+        ButtonGroup group = new ButtonGroup();
+        currentVictim = new JRadioButtonMenuItem("Choose from existing Victims");
+        newVictim = new JRadioButtonMenuItem("Create a new vicitm");
+        group.add(currentVictim);
+        group.add(newVictim);
+        victimSelection.add(currentVictim);
+        victimSelection.add(newVictim);
 
         //Add Button
         submitRelations = new JButton("Submit");
         backHomeButtonFR = new JButton("Home");
 
         //Add Button Listeners
+        currentVictim.addActionListener(this);
+        newVictim.addActionListener(this);
         submitRelations.addActionListener(this);
         backHomeButtonFR.addActionListener(this);
 
         //Panels for the home page
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new FlowLayout());
+        JPanel headerPanel = new JPanel(new GridLayout(2, 1));
         JPanel buttonPanel = new JPanel(new GridLayout(2, 1));
         JPanel submitPanel = new JPanel();
         submitPanel.setLayout(new FlowLayout());
 
         //Adding all of the components
         headerPanel.add(title);
+        headerPanel.add(victimSelection);
         buttonPanel.add(submitRelations);
         buttonPanel.add(backHomeButtonFR);
 
         //Main panel that will hold everything:
         JPanel relationPanel = new JPanel(new BorderLayout());
         relationPanel.add(headerPanel, BorderLayout.NORTH);
-        relationPanel.add(new JPanel(), BorderLayout.CENTER);
+        relationPanel.add(centerPanel, BorderLayout.CENTER);
         relationPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         return relationPanel;
@@ -388,6 +410,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         dobLabelFR = new JLabel("Date of Birth: ");
         genderLabelFR = new JLabel("Enter your gender:(Optional) ");
         dietaryLabelFR = new JLabel("<html>Please select all necessary dietary restrictions<br />Hold the CTRL key while selecting if you have multiple</html>");
+        locationLabelFR = new JLabel("Choose location ID");
         commentsLabelFR = new JLabel("Any additional comments:(Optional) ");
         relationshipToLabel = new JLabel("Relationship to the victim");
 
@@ -412,11 +435,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         listModelFR.addElement(DietaryRestriction.PFML);
         listModelFR.addElement(DietaryRestriction.VGML);
         listModelFR.addElement(DietaryRestriction.VJML);
+        SpinnerModel locationIDFR = new SpinnerNumberModel(1, 0, 150, 1);
+        locationIDSpinnerFR = new JSpinner(locationIDFR);
+        JSpinner.NumberEditor editorFR = new JSpinner.NumberEditor(locationIDSpinnerFR, "#");
+        locationIDSpinner.setEditor(editorFR);
         commentsInputFR = new JTextField("e.g Lost in flood", 15);
         relationshipToInput = new JTextField("e.g sibling", 15);
 
-        JPanel titlePanel = new JPanel(new GridLayout(8,1));
-        JPanel inputPanel = new JPanel(new GridLayout(8,1));
+        JPanel titlePanel = new JPanel(new GridLayout(9,1));
+        JPanel inputPanel = new JPanel(new GridLayout(9,1));
 
         titlePanel.add(fnLabelFR);
         titlePanel.add(lnLabelFR);
@@ -424,6 +451,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         titlePanel.add(dobLabelFR);
         titlePanel.add(genderLabelFR);
         titlePanel.add(dietaryLabelFR);
+        titlePanel.add(locationLabelFR);
         titlePanel.add(commentsLabelFR);
         titlePanel.add(relationshipToLabel);
         inputPanel.add(fnInputFR);
@@ -432,6 +460,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         inputPanel.add(dobInputFR);
         inputPanel.add(genderInputFR);
         inputPanel.add(dietaryInputFR);
+        inputPanel.add(locationIDSpinnerFR);
         inputPanel.add(commentsInputFR);
         inputPanel.add(relationshipToInput);
 
@@ -440,6 +469,33 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         mainPanel.add(inputPanel, BorderLayout.CENTER);
 
         return mainPanel;
+    }
+
+    private JPanel existingPerson(){
+        JPanel existingPersonPanel = new JPanel();
+        existingPersonPanel.setLayout(new BoxLayout(existingPersonPanel, BoxLayout.Y_AXIS));
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
+        victimModel = new DefaultListModel<>();
+        victimList = new JList<>(victimModel);
+        victimList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        victimResults = new JScrollPane(victimList);
+        relationshipToLabel = new JLabel("Relationship to the victim");
+        relationshipToInput = new JTextField("e.g sibling", 15);
+        ResultSet victims = this.dbConnect.retrieveAllDisasterVictims();
+        try{
+            while(victims.next()){
+                String victimName = victims.getString("fname") + " " + victims.getString("lname");
+                victimModel.addElement(victimName);
+            }
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        existingPersonPanel.add(victimResults);
+        contentPanel.add(relationshipToLabel);
+        contentPanel.add(relationshipToInput);
+        existingPersonPanel.add(contentPanel);
+        return existingPersonPanel;
     }
 
     /*Handle all button presses and option selections */
@@ -528,7 +584,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
                 validInfo = false;
             }
             if(validInfo){
-                this.dbConnect.addDisasterVictim(victim, (int) locationIDSpinner.getValue());
+                this.dbConnect.addDisasterVictim(victim, (int) locationIDSpinner.getValue(), relations);
                 JOptionPane.showMessageDialog(this, "DisasterVictim created successfully!");
                 this.dbConnect.close();
                 System.exit(0);
@@ -633,8 +689,8 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             medicalPanel.repaint();
         }
 
-        /* Submit Relations Related Info */
-        if(event.getSource() == submitRelations){
+        /* Family Relations Related Info */
+        if(event.getSource() == submitRelations && newVictim.isSelected()){
             DisasterVictim newRelation;
             boolean validInfo = true;
             String fName = fnInputFR.getText();
@@ -694,11 +750,65 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
                 newRelation.addDietaryRestriction(restriction);
             }
             if(validInfo){
+                this.dbConnect.addDisasterVictim(newRelation, (int)locationIDSpinnerFR.getValue(), new ArrayList<>());
                 JOptionPane.showMessageDialog(this, "FamilyRelation created successfully!");
                 relations.add(newRelation);
                 relationships.add(relationshipToInput.getText());
                 cardLayout.show(cardPanel, "main");
             }
+        }
+
+        if(event.getSource() == submitRelations && currentVictim.isSelected()){
+            DisasterVictim newRelation;
+            int selectedID = victimList.getSelectedIndex();
+            if(selectedID == -1){
+                JOptionPane.showMessageDialog(this, "Please choose a victim");
+            }
+            else{
+                String fullName = victimList.getSelectedValue();
+                String [] nameParts = fullName.split(" ");
+                ArrayList<String> names = new ArrayList<>(Arrays.asList(nameParts));
+                ResultSet victimInfo = this.dbConnect.retrieveDisasterVictim(names.get(0), names.get(1));
+                try{
+                    if(victimInfo.next()){
+                        int age = victimInfo.getInt("age");
+                        if(!victimInfo.wasNull()){
+                            //Just using a temporary date, won't be using for searching later on so it doesn't matter here
+                            newRelation = new DisasterVictim(names.get(0), "2024-04-03", victimInfo.getInt("age"));
+                            newRelation.setLastName(victimInfo.getString("lname"));
+                        }
+                        else{
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                            String dateString = sdf.format(victimInfo.getDate("dob"));
+                            newRelation = new DisasterVictim(names.get(0), "2024-04-03", dateString);
+                            newRelation.setLastName(victimInfo.getString("lname"));
+                        }
+                        relations.add(newRelation);
+                        relationships.add(relationshipToInput.getText());
+                        JOptionPane.showMessageDialog(this, "FamilyRelation created successfully!");
+                        cardLayout.show(cardPanel, "main");
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        if (event.getSource() == newVictim){
+            familyRelationsPanel.remove(centerPanel);
+            centerPanel = this.newPersonPanel();
+            familyRelationsPanel.add(centerPanel, BorderLayout.CENTER);
+            familyRelationsPanel.revalidate();
+            familyRelationsPanel.repaint();
+        }
+
+        if (event.getSource() == currentVictim){
+            familyRelationsPanel.remove(centerPanel);
+            centerPanel = this.existingPerson();
+            familyRelationsPanel.add(centerPanel, BorderLayout.CENTER);
+            familyRelationsPanel.revalidate();
+            familyRelationsPanel.repaint();
         }
     }
 
