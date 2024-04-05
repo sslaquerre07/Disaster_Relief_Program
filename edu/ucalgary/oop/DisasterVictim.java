@@ -284,7 +284,8 @@ public class DisasterVictim implements FileAccess{
     }
 
     public boolean validGender(String gender){
-        ArrayList<String> validGenders = readFileLines("edu\\ucalgary\\oop\\GenderOptions.txt");
+        ArrayList<String> validGenders = new ArrayList<>();
+        validGenders = readFileLines("edu\\ucalgary\\oop\\GenderOptions.txt"); 
         for(String gender1: validGenders){
             if(gender1.equals(gender)){
                 return true;
@@ -306,27 +307,16 @@ public class DisasterVictim implements FileAccess{
             }
             reader.close();
         }
-        catch(IOException e){
-            e.printStackTrace();
+        catch(FileNotFoundException ex){
+            return null;
+        }
+        catch(IOException ex){
+            ex.printStackTrace();
         }
         return fileContents;
     }
 
    
-}
-
-
-//Dietary Restrictions Declaration
-enum DietaryRestriction {
-    AVML,
-    DBML,
-    GFML,
-    KSML,
-    LSML,
-    MOML,
-    PFML,
-    VGML,
-    VJML
 }
 
 

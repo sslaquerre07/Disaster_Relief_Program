@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.List;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -78,12 +79,14 @@ public class DisasterVictimTest {
     }
 
     @Test
-    public void testSetDateOfBirthWithAgeSet(){
+    public void testSetAgeWithDateOfBirthSet(){
         //Should make the age null
         String newDateOfBirth = "1987-05-21";
         victim.setDateOfBirth(newDateOfBirth);
-        assertEquals("setDateOfBirth should correctly update the date of birth", newDateOfBirth, victim.getDateOfBirth());
-        assertNull("When date of birth is set, the age should always be null", victim.getAge());
+        Integer newAge = 15;
+        victim.setAge(newAge);
+        assertEquals("setAge should correctly update the age", newAge, victim.getAge());
+        assertNull("When date of birth is set, the age should always be null", victim.getDateOfBirth());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -176,6 +179,13 @@ public class DisasterVictimTest {
     public void testSetGenderWithInvalidGender(){
         String newGender = "wman";
         victim.setGender(newGender);
+    }
+
+    @Test
+    public void testInvalidFileName(){
+        //Since the function returns null when a fileNotFoundException is caught, we'll test with an assert statement
+        String invalidFile = "randomNonsenseLol";
+        assertNull(victim.readFileLines(invalidFile));
     }
     /*End of Gender Related Tests */
 
