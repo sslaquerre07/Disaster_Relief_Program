@@ -5,6 +5,7 @@ import java.util.*;
 public class ReliefService extends DBAccess{
     private Inquirer inquirer;
     private ArrayList<Inquiry> inquiries = new ArrayList<Inquiry>(); //Initialized
+    private ArrayList<ReliefWorker> workers;
 
     // Constructor
     public ReliefService(Inquirer inquirer) {
@@ -44,5 +45,17 @@ public class ReliefService extends DBAccess{
 
     public void printLogDetails(){
         System.out.println(getLogDetails());
+    }
+
+    public void addReliefWorker(ReliefWorker newWorker){
+        this.workers.add(newWorker);
+    }
+
+    public void setReliefWorkers(ArrayList<ReliefWorker> workerList){
+        this.workers = workerList;
+    }
+
+    public ArrayList<ReliefWorker> getReliefWorkers(){
+        return this.workers;
     }
 }

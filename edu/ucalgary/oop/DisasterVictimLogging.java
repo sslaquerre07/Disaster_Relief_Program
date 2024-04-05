@@ -132,7 +132,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
 
         setupGUI();
         setSize(500, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
     }
 

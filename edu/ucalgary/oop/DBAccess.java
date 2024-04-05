@@ -341,33 +341,6 @@ public class DBAccess {
 
     /*Additional functions */
 
-    //Turns results for any table into a string (Helper function)
-    public String stringifyResults(ResultSet results){
-        try{
-            StringBuffer resultStringBuffer = new StringBuffer();
-            //Getting column names
-            ArrayList<String> columnNames = new ArrayList<>();
-            ResultSetMetaData metaData = results.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            for(int i = 1;i <= columnCount; i++){
-                columnNames.add(metaData.getColumnName(i));
-            }
-
-            resultStringBuffer.append("Current results\n");
-            while(results.next()){
-                for(int j = 0; j < columnCount; j++){
-                    resultStringBuffer.append(columnNames.get(j) + ": " + results.getString(columnNames.get(j)) + "\t");
-                }
-                resultStringBuffer.append("\n");
-            }
-            return resultStringBuffer.toString();
-        }
-        catch(SQLException ex){
-            ex.printStackTrace();
-            return "";
-        }
-    }
-
     //Makes sure that everything is being closed correctly
     public void close(){
         try{
@@ -376,14 +349,5 @@ public class DBAccess {
         catch(SQLException e){
             e.printStackTrace();
         }
-    }
-
-    //Main for testing
-    public static void main(String[] args) {
-        DBAccess myJBDC = new DBAccess();
-
-        ResultSet results = myJBDC.searchInquiryLogResults("melinda");
-        System.out.println(myJBDC.stringifyResults(results));
-        myJBDC.close();
     }
 }

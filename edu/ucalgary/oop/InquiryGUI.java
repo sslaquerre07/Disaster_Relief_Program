@@ -78,7 +78,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
 
         setupGUI();
         setSize(500, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     public void setupGUI(){
