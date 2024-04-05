@@ -817,11 +817,5 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             this.familyRelationsPanel.repaint();
         }
     }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            new DisasterVictimLogging().setVisible(true);
-        });
-    }
     
 }

@@ -502,11 +502,5 @@ public class InquiryGUI extends JFrame implements ActionListener{
             }
         }
     }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            new InquiryGUI().setVisible(true);
-        });
-    }
     
 }
