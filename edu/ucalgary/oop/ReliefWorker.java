@@ -1,24 +1,38 @@
 package edu.ucalgary.oop;
 
-public class ReliefWorker extends UserInteraction{
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class ReliefWorker{
     private Integer workerID;
     private static Integer count = 0;
+    private DisasterVictimLogging victimInterface;
+    private InquiryGUI inquiryInterface;
 
     public ReliefWorker(){
         this.workerID = count;
+        this.victimInterface = new DisasterVictimLogging();
+        this.inquiryInterface = new InquiryGUI();
         count++;
     } 
 
-    public DisasterVictim enterVictim(DisasterVictim victim, Location location){
+    public void enterVictim(){
         //Align all of this input with some database access and this interface should work great!
-        return victim;
+        EventQueue.invokeLater(() -> {
+            victimInterface.setVisible(true);
+        }); 
     }
 
-    @Override
-    public <T> void getTerminalInput() {
-        //Through terminal input, do the following
-        //1. General Info
-        //2. Relationships
-        //3. Medical Records and the Location they were administered in
+    public void enterInquiry(){
+        //Align all of this input with some database access and this interface should work great!
+        EventQueue.invokeLater(() -> {
+            inquiryInterface.setVisible(true);
+        }); 
+    }
+
+    public static void main(String[] args) {
+        ReliefWorker worker= new ReliefWorker();
+        worker.enterInquiry();
     }
 }

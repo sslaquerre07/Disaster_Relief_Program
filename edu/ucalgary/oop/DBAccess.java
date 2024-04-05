@@ -14,7 +14,7 @@ public class DBAccess {
     //Constructor
     public DBAccess(){
         try{
-            dbConnect = DriverManager.getConnection("jdbc:postgresql://localhost/ensf380project", "oop", "ucalgary");
+            this.dbConnect = DriverManager.getConnection("jdbc:postgresql://localhost/ensf380project", "oop", "ucalgary");
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -296,6 +296,7 @@ public class DBAccess {
                     ex.printStackTrace();
                 }
                 addMRStatement.setInt(4, social_id);
+                addMRStatement.executeQuery();
                 recordsAdded++;
             }
             return recordsAdded;
