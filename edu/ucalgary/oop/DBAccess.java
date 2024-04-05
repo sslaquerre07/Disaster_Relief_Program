@@ -162,21 +162,22 @@ public class DBAccess {
 
 
     /*All data insertion related queries */
-    public void addInquirer(String fname, String lname, String phone){
+    public int addInquirer(String fname, String lname, String phone){
         try{
             String addQuery = "INSERT INTO INQUIRER (firstName, lastName, phoneNumber) VALUES (?, ?, ?)";
             PreparedStatement addStatement = this.dbConnect.prepareStatement(addQuery);
             addStatement.setString(1, fname);
             addStatement.setString(2, lname);
             addStatement.setString(3, phone);
-            addStatement.executeUpdate();
+            return addStatement.executeUpdate();
         }
         catch(SQLException ex){
             ex.printStackTrace();
+            return -1;
         }
     }
 
-    public void addInquiry(int social_id, int location_id, int inquirer_id, Inquiry inquiry){
+    public int addInquiry(int social_id, int location_id, int inquirer_id, Inquiry inquiry){
         try{
             String addQuery = "INSERT INTO INQUIRY_LOG (inquirer, callDate, details, location_id, social_id) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement addStatement = this.dbConnect.prepareStatement(addQuery);
@@ -193,13 +194,15 @@ public class DBAccess {
             else{
                 addStatement.setNull(5, Types.INTEGER);
             }
-            addStatement.executeUpdate();
+            return addStatement.executeUpdate();
         }
         catch(SQLException ex){
             ex.printStackTrace();
+            return -1;
         }
         catch(ParseException ex){
             ex.printStackTrace();
+            return -1;
         }
     }
 
@@ -238,6 +241,7 @@ public class DBAccess {
         }
     }
 
+    //Helper function for GUI
     public boolean validLocationID(int location_id){
         try{
             Statement getIDStatement = this.dbConnect.createStatement();
@@ -259,21 +263,23 @@ public class DBAccess {
         }
     }
 
-    public void addLocation(Location location){
+    public int addLocation(Location location){
         try{
             String addLocation = "INSERT INTO LOCATION_TABLE (name, address) VALUES (?, ?)";
             PreparedStatement addLocationQuery = this.dbConnect.prepareStatement(addLocation);
             addLocationQuery.setString(1, location.getName());
             addLocationQuery.setString(2, location.getAddress());
-            addLocationQuery.executeUpdate();
+            return addLocationQuery.executeUpdate();
         }
         catch(SQLException ex){
             ex.printStackTrace();
+            return -1;
         }
     }
 
-    private void addMedicalRecords(ArrayList<MedicalRecord> list, int location_id, int social_id){
+    public int addMedicalRecords(ArrayList<MedicalRecord> list, int location_id, int social_id){
         try{
+            int recordsAdded = 0;
             for(int i = 0; i < list.size(); i++){
                 String medicalRecord = "INSERT INTO MEDICAL_RECORD (date_of_treatment, treatment_detials, location_id, social_id) VALUES (?, ?, ?, ?)";
                 PreparedStatement addMRStatement = this.dbConnect.prepareStatement(medicalRecord);
@@ -290,18 +296,20 @@ public class DBAccess {
                     ex.printStackTrace();
                 }
                 addMRStatement.setInt(4, social_id);
-                addMRStatement.executeUpdate();
-                System.out.println("Success");
+                recordsAdded++;
             }
+            return recordsAdded;
         }
         catch(SQLException e){
             e.printStackTrace();
+            return -1;
         }
     }
 
-    public void addFamilyRelations(DisasterVictim victim, ArrayList<DisasterVictim> relatives){
+    public int addFamilyRelations(DisasterVictim victim, ArrayList<DisasterVictim> relatives){
         //Getting information for the victim before the loop
         try{
+            int rowsAdded = 0;
             ResultSet person1Info = this.retrieveDisasterVictim(victim.getFirstName(), victim.getLastName());
             int person1ID = 0;
             if(person1Info.next()){
@@ -320,10 +328,13 @@ public class DBAccess {
                 insertStatement.setInt(2, person2ID);
                 insertStatement.setString(3, victim.getFamilyConnections().get(i).getRelationshipTo());
                 insertStatement.executeUpdate();
+                rowsAdded++;
             }
+            return rowsAdded;
         }
         catch(SQLException ex){
             ex.printStackTrace();
+            return -1;
         }
     }
 
