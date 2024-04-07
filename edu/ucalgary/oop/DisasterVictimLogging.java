@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter;
 
 
 public class DisasterVictimLogging extends JFrame implements ActionListener{
+    private boolean centralWorkerFlag;
+    private Integer locationID;
     private boolean inquiryOpen;
     private CardLayout cardLayout;
     private JPanel cardPanel;
@@ -125,15 +127,28 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JButton backHomeButtonFR; 
     private JButton submitRelations;
 
-
+    //For central workers
     public DisasterVictimLogging(){
         super("Disaster Victim Logging GUI");
         this.dbConnect = new DBAccess();
+        this.centralWorkerFlag = true;
 
-        setupGUI();
+        setupGUI(this.centralWorkerFlag);
         setSize(500, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+    }
+
+    //For location workers
+    public DisasterVictimLogging(Integer locationID){
+        super("Disaster Victim Logging GUI");
+        this.dbConnect = new DBAccess();
+        this.locationID = locationID;
+        this.centralWorkerFlag = false;
+
+        setupGUI(this.centralWorkerFlag);
+        setSize(500, 300);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     public void setInquiryOpen(boolean status){
@@ -144,12 +159,12 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         return this.inquiryOpen;
     }
 
-    public void setupGUI(){
+    public void setupGUI(boolean centralWorkerFlag){
         this.inquiryOpen = false;
         //Creates the layout to switch between pages
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(this.cardLayout);
-        this.mainPanel = this.setupMain();
+        this.mainPanel = this.setupMain(centralWorkerFlag);
         this.medicalPanel = this.medicalRecordPage();
         this.familyRelationsPanel = this.familyRelationsPage();
 
@@ -163,7 +178,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     }
 
     /*Main page related functions */
-    private JPanel setupMain(){
+    private JPanel setupMain(boolean centralWorkerFlag){
         this.title = new JLabel("Welcome to the Disaster Victim Logging Page");
 
         //Set all labels
@@ -171,7 +186,9 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         this.lnLabel = new JLabel("Last Name:(Optional) ");
         this.ageLabel = new JLabel("Approx age(Choose either this or date of birth): ");
         this.dobLabel = new JLabel("Date of Birth: ");
-        this.locationIDLabel = new JLabel("Please enter the location ID");
+        if(centralWorkerFlag){
+            this.locationIDLabel = new JLabel("Please enter the location ID");
+        }
         this.genderLabel = new JLabel("Enter your gender:(Optional) ");
         this.dietaryLabel = new JLabel("<html>Please select all necessary dietary restrictions<br />Hold the CTRL key while selecting if you have multiple</html>");
         this.commentsLabel = new JLabel("Any additional comments:(Optional) ");
@@ -184,10 +201,12 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         JSpinner.NumberEditor editor = new JSpinner.NumberEditor(this.ageSpinner, "#");
         this.ageSpinner.setEditor(editor);
         this.dobInput = new JTextField("e.g 2004-01-09", 15);
-        SpinnerModel locationID = new SpinnerNumberModel(18, 0, 150, 1);
-        this.locationIDSpinner = new JSpinner(locationID);
-        JSpinner.NumberEditor editorL = new JSpinner.NumberEditor(this.locationIDSpinner, "#");
-        this.locationIDSpinner.setEditor(editorL);
+        if(centralWorkerFlag){
+            SpinnerModel locationID = new SpinnerNumberModel(1, 0, 150, 1);
+            this.locationIDSpinner = new JSpinner(locationID);
+            JSpinner.NumberEditor editorL = new JSpinner.NumberEditor(this.locationIDSpinner, "#");
+            this.locationIDSpinner.setEditor(editorL);
+        }
         this.genderInput = new JTextField("e.g male", 15);
         this.listModel = new DefaultListModel<>();
         this.list = new JList<>(this.listModel);
@@ -230,7 +249,9 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         titlePanel.add(this.lnLabel);
         titlePanel.add(this.ageLabel);
         titlePanel.add(this.dobLabel);
-        titlePanel.add(this.locationIDLabel);
+        if(centralWorkerFlag){
+            titlePanel.add(this.locationIDLabel);
+        }
         titlePanel.add(this.genderLabel);
         titlePanel.add(this.dietaryLabel);
         titlePanel.add(this.commentsLabel);
@@ -238,7 +259,9 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         inputPanel.add(this.lnInput);
         inputPanel.add(this.ageSpinner);
         inputPanel.add(this.dobInput);
-        inputPanel.add(this.locationIDSpinner);
+        if(centralWorkerFlag){
+            inputPanel.add(this.locationIDSpinner);
+        }
         inputPanel.add(this.genderInput);
         inputPanel.add(this.dietaryInput);
         inputPanel.add(this.commentsInput);
@@ -448,7 +471,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         SpinnerModel locationIDFR = new SpinnerNumberModel(1, 0, 150, 1);
         this.locationIDSpinnerFR = new JSpinner(locationIDFR);
         JSpinner.NumberEditor editorFR = new JSpinner.NumberEditor(this.locationIDSpinnerFR, "#");
-        this.locationIDSpinner.setEditor(editorFR);
+        this.locationIDSpinnerFR.setEditor(editorFR);
         this.commentsInputFR = new JTextField("e.g Lost in flood", 15);
         this.relationshipToInput = new JTextField("e.g sibling", 15);
 
@@ -582,12 +605,20 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
             this.victim.setFamilyConnections(this.familyRelations);
             this.victim.setMedicalRecords(this.medicalRecords);
-            if(!this.dbConnect.validLocationID((int) this.locationIDSpinner.getValue())){
-                JOptionPane.showMessageDialog(this, "Invalid Location ID");
-                validInfo = false;
+            if(centralWorkerFlag){
+                if(!this.dbConnect.validLocationID((int) this.locationIDSpinner.getValue())){
+                    JOptionPane.showMessageDialog(this, "Invalid Location ID");
+                    validInfo = false;
+                }
             }
+            
             if(validInfo){
-                this.dbConnect.addDisasterVictim(this.victim, (int) this.locationIDSpinner.getValue(), this.relations);
+                if(this.centralWorkerFlag){
+                    this.dbConnect.addDisasterVictim(this.victim, (int) this.locationIDSpinner.getValue(), this.relations);
+                }
+                else{
+                    this.dbConnect.addDisasterVictim(this.victim, this.locationID, this.relations);
+                }
                 JOptionPane.showMessageDialog(this, "DisasterVictim created successfully!");
                 this.dbConnect.close();
                 if(this.getInquiryOpen()){

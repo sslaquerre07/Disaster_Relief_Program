@@ -13,25 +13,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class InquiryGUI extends JFrame implements ActionListener{
-    private Location inquiry_location = new Location("Default", "Default");
-    private DisasterVictim inquiry_victim = new DisasterVictim("", "2024-09-09", 0);
+    private Location inquiryLocation = new Location("Default", "Default");
+    private DisasterVictim inquiryVictim = new DisasterVictim("", "2024-09-09", 0);
+    private boolean centralWorkerFlag;
 
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private DBAccess dbConnection;
 
     //Components of the login page
-    private JPanel loginPage;
-    private JLabel loginTitle;
-    private JLabel workerTypeLabel;
-    private JPanel workerTypeInput;
-    private JPanel currentLocations;
-    private JRadioButtonMenuItem centralWorker;
-    private JRadioButtonMenuItem locationWorker;
+
     private JScrollPane locationScrollPane;
     private DefaultListModel<String> locationModel = new DefaultListModel<>();
     private JList<String> locationList = new JList<>(locationModel);
-    private JButton loginButton;
 
     //Components of the inquiry page
     private boolean victimSelected;
@@ -70,76 +64,55 @@ public class InquiryGUI extends JFrame implements ActionListener{
     private JButton backHomeSVButton;
     private JButton chooseVictimButton;
 
+    public Location getInquiryLocation(){
+        return this.inquiryLocation;
+    }
+
+    public void setInquiryLocation(Location location){
+        this.inquiryLocation = location;
+    }
+
+    //Constructor for central workers
     public InquiryGUI(){
         super("Inquiry Logging GUI");
         //Establish connection to database to search for victims
         this.dbConnection = new DBAccess();
         this.victimSelected = false;
+        this.centralWorkerFlag = true;
 
-        setupGUI();
+        setupGUI(true);
         setSize(500, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    public void setupGUI(){
+    //Constructor for location workers
+    public InquiryGUI(Location workerLocation){
+        super("Inquiry Logging GUI");
+        //Establish connection to database to search for victims
+        this.dbConnection = new DBAccess();
+        this.victimSelected = false;
+        this.centralWorkerFlag = false;
+        this.setInquiryLocation(workerLocation);
+
+        setupGUI(false);
+        setSize(500, 300);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    public void setupGUI(boolean workerFlag){
         //Creates the layout to switch between pages
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(this.cardLayout);
 
         //Creating the dynamic pages
-        this.loginPage = this.setupLogin(false);
-        this.inquiryPage = this.setupInquiryPage();
+        this.inquiryPage = this.setupInquiryPage(workerFlag);
 
         //Add all pages to the card panel:
-        this.cardPanel.add(this.loginPage, "main");
-        this.cardPanel.add(this.inquiryPage, "inquiry");
+        this.cardPanel.add(this.inquiryPage, "main");
         this.cardPanel.add(this.setupSearchVictimPage(), "search");
 
         //Add cardPanel to the main panel
         getContentPane().add(this.cardPanel);
-    }
-
-    private JPanel setupLogin(boolean loginFlag){
-        //Define all components
-        this.loginTitle = new JLabel("Welcome to the Inquiry Log Login");
-        this.workerTypeLabel = new JLabel("Please select what kind of worker you are");
-        this.workerTypeInput = new JPanel(new GridLayout(1,2));
-        ButtonGroup group = new ButtonGroup();
-        this.centralWorker = new JRadioButtonMenuItem("Central Worker");
-        this.locationWorker = new JRadioButtonMenuItem("Location Worker");
-        group.add(this.centralWorker);
-        group.add(this.locationWorker);
-        this.workerTypeInput.add(this.centralWorker);
-        this.workerTypeInput.add(this.locationWorker);
-
-        this.loginButton = new JButton("Login");
-        this.loginButton.addActionListener(this);
-        this.centralWorker.addActionListener(this);
-        this.locationWorker.addActionListener(this);
-
-        //Define all panels
-        JPanel mainPanel = new JPanel(new GridLayout(4, 1));
-        this.currentLocations = this.locationSelector(false);
-        JPanel headerPanel = new JPanel(new FlowLayout());
-        JPanel locationPanel = new JPanel(new GridLayout(1, 2));
-        JPanel buttonPanel = new JPanel (new FlowLayout());
-
-        //Add all components to their respective panels
-        headerPanel.add(this.loginTitle);
-        locationPanel.add(this.workerTypeLabel);
-        locationPanel.add(this.workerTypeInput);
-        buttonPanel.add(this.loginButton);
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(locationPanel, BorderLayout.CENTER);
-        if(loginFlag){
-            mainPanel.add(this.currentLocations);
-        }
-        else{
-            mainPanel.add(new JPanel());
-        }
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        return mainPanel;
     }
 
     private JPanel locationSelector(boolean inquiryPageFlag){
@@ -165,7 +138,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
         return existingLocationPanel;
     }
 
-    private JPanel setupInquiryPage(){
+    private JPanel setupInquiryPage(boolean workerFlag){
         //Labels and inputs
         this.title = new JLabel("Welcome to the Inquiry Logging Page");
 
@@ -177,7 +150,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
         //Panels
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel headerPanel = new JPanel(new FlowLayout());
-        JPanel contentPanel = this.setupWorkerInput(false);
+        JPanel contentPanel = this.setupWorkerInput(workerFlag);
         JPanel buttonPanel = new JPanel(new GridLayout(3,1));
 
         //Add action listeners to the buttons
@@ -284,54 +257,6 @@ public class InquiryGUI extends JFrame implements ActionListener{
     }
 
     public void actionPerformed(ActionEvent e){
-        /*Main Page Actions */
-        if(e.getSource() == this.loginButton && this.centralWorker.isSelected()){
-            Component toBeRemoved = this.inquiryPage.getComponent(1);
-            JPanel newComponent = this.setupWorkerInput(true);
-            this.inquiryPage.remove(toBeRemoved);
-            this.inquiryPage.add(newComponent, 1);
-            this.inquiryPage.revalidate();
-            this.inquiryPage.repaint();
-            this.cardLayout.show(this.cardPanel, "inquiry");
-        }
-        if(e.getSource() == this.loginButton && this.locationWorker.isSelected()){
-            int selectedIndex = this.locationList.getSelectedIndex();
-            if(selectedIndex != -1){
-                String locationName = this.locationList.getSelectedValue();
-                try{
-                    ResultSet result = this.dbConnection.retrieveLocation(locationName);
-                    if (result.next()){
-                        this.inquiry_location = new Location(locationName, result.getString("address"));
-                        this.cardLayout.show(this.cardPanel, "inquiry");
-                    }
-                    else{
-                        JOptionPane.showMessageDialog(this, "There was a problem retrieving your location");
-                    }
-                }
-                catch(SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            else{
-                JOptionPane.showMessageDialog(this, "Please select a location before proceeding");
-            }
-        }
-        if(e.getSource() == this.centralWorker){
-            //Set back to no location tab
-            this.loginPage.remove(2);
-            this.loginPage.add(new JPanel(), 2);
-            this.loginPage.revalidate();
-            this.loginPage.repaint();
-        }
-        if(e.getSource() == this.locationWorker){
-            //Set back to no location tab
-            JPanel locations = this.locationSelector(false);
-            this.loginPage.remove(2);
-            this.loginPage.add(locations, 2);
-            this.loginPage.revalidate();
-            this.loginPage.repaint();
-        }
-
         /*Inquiry Page Actions */
         if(e.getSource() == this.searchVictimsButton){
             this.cardLayout.show(this.cardPanel, "search");
@@ -348,7 +273,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
             String inquirerFname = this.inquirerFirstNameInput.getText();
             String inquirerLname = this.inquirerLastNameInput.getText();
             String inquirerPhone = this.inquirerPhoneInput.getText();
-            if(this.centralWorker.isSelected()){
+            if(centralWorkerFlag){
                 int selectedIndex = this.locationList.getSelectedIndex();
                 if(selectedIndex == -1){
                     JOptionPane.showMessageDialog(this, "Please choose a location before submitting");
@@ -359,7 +284,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
                     try{
                         ResultSet result = this.dbConnection.retrieveLocation(locationName);
                         if (result.next()){
-                            this.inquiry_location = new Location(locationName, result.getString("address"));
+                            this.inquiryLocation = new Location(locationName, result.getString("address"));
                         }
                         else{
                             JOptionPane.showMessageDialog(this, "There was a problem retrieving your location");
@@ -398,7 +323,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
                 if(this.victimSelected){
                     //Retrival of victim if necessary
                     try{
-                        ResultSet victimSet = this.dbConnection.retrieveDisasterVictim(this.inquiry_victim.getFirstName(), this.inquiry_victim.getLastName());
+                        ResultSet victimSet = this.dbConnection.retrieveDisasterVictim(this.inquiryVictim.getFirstName(), this.inquiryVictim.getLastName());
                         if(victimSet.next()){
                             socialID = victimSet.getInt("social_id");
                         }
@@ -409,7 +334,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
                 }
                 //Retrieve all data other than the victim
                 try{
-                    ResultSet locationSet = this.dbConnection.retrieveLocation(inquiry_location.getName());
+                    ResultSet locationSet = this.dbConnection.retrieveLocation(inquiryLocation.getName());
                     ResultSet inquirerSet = this.dbConnection.retrieveInquirer(inquirerFname, inquirerLname);
                     if(locationSet.next()){
                         locationID = locationSet.getInt("location_id");
@@ -430,7 +355,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
                 catch(SQLException ex){
                     ex.printStackTrace();
                 }
-                Inquiry newInquiry = new Inquiry(this.inquiry_victim, dateOfEntry, infoProvided);
+                Inquiry newInquiry = new Inquiry(this.inquiryVictim, dateOfEntry, infoProvided);
                 this.dbConnection.addInquiry(socialID, locationID, inquirerID, newInquiry);
                 JOptionPane.showMessageDialog(this, "Successfully added inquiry");
                 System.exit(0);
@@ -439,7 +364,7 @@ public class InquiryGUI extends JFrame implements ActionListener{
 
         /*Search Page Actions */
         if(e.getSource() == this.backHomeSVButton){
-            this.cardLayout.show(this.cardPanel, "inquiry");
+            this.cardLayout.show(this.cardPanel, "main");
         }
         if (e.getSource() == this.searchButton){
             this.listModel.clear();
@@ -480,21 +405,20 @@ public class InquiryGUI extends JFrame implements ActionListener{
             ResultSet victimInfo = this.dbConnection.retrieveDisasterVictim(names.get(0), names.get(1));
             try{
                 if(victimInfo.next()){
-                    int age = victimInfo.getInt("age");
                     if(!victimInfo.wasNull()){
                         //Just using a temporary date, won't be using for searching later on so it doesn't matter here
-                        this.inquiry_victim = new DisasterVictim(names.get(0), "2024-04-03", victimInfo.getInt("age"));
-                        this.inquiry_victim.setLastName(victimInfo.getString("lname"));
+                        this.inquiryVictim = new DisasterVictim(names.get(0), "2024-04-03", victimInfo.getInt("age"));
+                        this.inquiryVictim.setLastName(victimInfo.getString("lname"));
                     }
                     else{
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         String dateString = sdf.format(victimInfo.getDate("dob"));
-                        this.inquiry_victim = new DisasterVictim(names.get(0), "2024-04-03", dateString);
-                        this.inquiry_victim.setLastName(victimInfo.getString("lname"));
+                        this.inquiryVictim = new DisasterVictim(names.get(0), "2024-04-03", dateString);
+                        this.inquiryVictim.setLastName(victimInfo.getString("lname"));
                     }
                     JOptionPane.showMessageDialog(this, "DisasterVicitm Chosen");
                     this.victimSelected = true;
-                    this.cardLayout.show(this.cardPanel, "inquiry");
+                    this.cardLayout.show(this.cardPanel, "main");
                 }
             }
             catch(SQLException ex){

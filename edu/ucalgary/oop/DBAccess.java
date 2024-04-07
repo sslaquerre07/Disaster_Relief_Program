@@ -38,6 +38,20 @@ public class DBAccess {
         }
     }
 
+    public ResultSet retrieveLocation(int locationID){
+        try{
+            String getLocation = "select * from location_table where location_id = (?)";
+            PreparedStatement getLocationStmt = this.dbConnect.prepareStatement(getLocation);
+            getLocationStmt.setInt(1, locationID);
+            ResultSet result = getLocationStmt.executeQuery();
+            return result;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
     public ResultSet retrieveLocation(String locationName){
         try{
             String getLocation = "select * from location_table where name = (?)";
@@ -226,9 +240,9 @@ public class DBAccess {
             if (affectedRows > 0){
                 ResultSet rs = addVictimStatement.getGeneratedKeys();
                 if(rs.next()){
-                    int social_id = rs.getInt(1);
+                    int social_id = rs.getInt("social_id");
                     if(victim.getMedicalRecords().size() != 0){
-                        this.addMedicalRecords(victim.getMedicalRecords(), locationID, social_id);
+                        this.addMedicalRecords(victim.getMedicalRecords(), social_id);
                     }
                     if(victim.getFamilyConnections().size() != 0){
                         this.addFamilyRelations(victim, relatives);
@@ -277,7 +291,7 @@ public class DBAccess {
         }
     }
 
-    public int addMedicalRecords(ArrayList<MedicalRecord> list, int location_id, int social_id){
+    public int addMedicalRecords(ArrayList<MedicalRecord> list, int social_id){
         try{
             int recordsAdded = 0;
             for(int i = 0; i < list.size(); i++){
@@ -340,6 +354,44 @@ public class DBAccess {
     }
 
     /*Additional functions */
+    public String stringifyResults(ResultSet results){
+        try{
+            StringBuilder resultStringBuffer = new StringBuilder();
+            //Getting column names
+            ArrayList<String> columnNames = new ArrayList<>();
+            ResultSetMetaData metaData = results.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            for(int i = 1;i <= columnCount; i++){
+                columnNames.add(metaData.getColumnName(i));
+            }
+
+            resultStringBuffer.append("Current results\n");
+            while(results.next()){
+                for(int j = 0; j < columnCount; j++){
+                    resultStringBuffer.append(String.format("%-30s", columnNames.get(j) + ": " + results.getString(columnNames.get(j))));
+                }
+                resultStringBuffer.append("\n");
+            }
+            return resultStringBuffer.toString();
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+            return "";
+        }
+    }
+
+    public int getResultSetSize(ResultSet results){
+        int rowCount = 0;
+        try{
+            while(results.next()){
+                rowCount++;
+            }
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return rowCount;
+    }
 
     //Makes sure that everything is being closed correctly
     public void close(){
@@ -350,4 +402,5 @@ public class DBAccess {
             e.printStackTrace();
         }
     }
+
 }
