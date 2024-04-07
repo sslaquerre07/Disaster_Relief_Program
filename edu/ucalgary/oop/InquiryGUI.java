@@ -262,9 +262,26 @@ public class InquiryGUI extends JFrame implements ActionListener{
             this.cardLayout.show(this.cardPanel, "search");
         }
         if(e.getSource() == this.createNewPersonButton){
-            DisasterVictimLogging vicitmGUI = new DisasterVictimLogging();
-            vicitmGUI.setVisible(true);
-            vicitmGUI.setInquiryOpen(true);
+            if(centralWorkerFlag){
+                DisasterVictimLogging victimGUI = new DisasterVictimLogging();
+                victimGUI.setVisible(true);
+                victimGUI.setInquiryOpen(true);
+            }
+            else{
+                ResultSet location = this.dbConnection.retrieveLocation(this.getInquiryLocation().getName());
+                Integer locationID = -1;
+                try{
+                    if(location.next()){
+                        locationID = location.getInt("location_id");
+                        DisasterVictimLogging victimGUI = new DisasterVictimLogging(locationID);
+                        victimGUI.setVisible(true);
+                        victimGUI.setInquiryOpen(true);
+                    }
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
         }
         if(e.getSource() == this.submitInquiry){
             boolean validData = true;

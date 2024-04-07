@@ -310,7 +310,7 @@ public class DBAccess {
                     ex.printStackTrace();
                 }
                 addMRStatement.setInt(4, social_id);
-                addMRStatement.executeQuery();
+                addMRStatement.executeUpdate();
                 recordsAdded++;
             }
             return recordsAdded;
