@@ -11,3 +11,17 @@ The interfaces are accessible through 2 classes:
 By navigating to this file, you can compile and run the main function. This will allow you to pick from either of the two interfaces. From a central worker perspective, both interaces allow for you to choose where your inquiry is being logged, or where your disaster victim is stored. 
 ### LocationWorker.java
 Running the main function in this file will first prompt you to select from all of the current locations in the database. You will have to choose a valid id, if not you will be prompted to pick one again. Once you pick one, you will be prompted with the same two interfaces given to the central worker, with the location already set for database uploading. 
+---
+## Interfaces Breakdown
+Each GUI that was developed was done with a specific purpose and for a purpose.
+---
+### DisasterVictimLogging GUI
+This interface was broken down into several components to allow a DisasterVictim to be created as well as possible. This interface has multiple components, each of which will be described below
+1. Generic Detail input: Take down all general info about the DisasterVictim that is not stored in the form of an array.
+2. Family Relations Page: Allows the user to either select an existing DisasterVictim or create a new one to be related to the DisasterVictim being created.
+3. Medical Records Page: Allows users to create MedicalRecords for the DisasterVictim, either at an existing location or a new one. 
+### InquiryLoggingGUI
+This interface is also broken down into several components, meant to replicate the creation of Inquiries clearly.
+1. Generic Inquiry Input: Take down all general inquiry info, and store it upon submission. The only unique thing about this interface is that upon submission, it will take the inquirer info and if it exists in the database, it will use it, if not, it will create a new one.
+2. Search For Vicitm Page: Inquiries can either be related to a disasterVictim, or just a general inquiry. If you want to link the inquiry to a vicitm, you must do so in this page. You can search either with the first name or with first and last name. It will search both to see if the corresponding name contains the strings put in as inputs. By selecting a DisasterVictim, it successfully links the inquiry upon submission.
+3. Create a new Victim Button: If you try searching for a victim and it does not seem to be in the database, you can create a new victim. This simply opens a window to the other interface, allowing you to create a new victim. Once the new victim has been created, it will return you to the original window, and you can search and select the victim you just created. 
