@@ -4,7 +4,7 @@
 ---
 ## User Interface Guide
 Both user interfaces were implemented using the GUI features shown in the Week 12 Videos
-* Note: Both types of users can enter DisasterVictims and Inquiries, the main diffrence is that the central worker can enter these things for all locations *
+*Note: Both types of users can enter DisasterVictims and Inquiries, the main diffrence is that the central worker can enter these things for all locations*
 The interfaces are accessible through 2 classes:
 ---
 ### CentralWorker.java
