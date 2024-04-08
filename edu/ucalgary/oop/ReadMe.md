@@ -23,3 +23,5 @@ This interface is also broken down into several components, meant to replicate t
 2. Search For Vicitm Page: Inquiries can either be related to a disasterVictim, or just a general inquiry. If you want to link the inquiry to a vicitm, you must do so in this page. You can search either with the first name or with first and last name. It will search both to see if the corresponding name contains the strings put in as inputs. By selecting a DisasterVictim, it successfully links the inquiry upon submission.
 3. Create a new Victim Button: If you try searching for a victim and it does not seem to be in the database, you can create a new victim. This simply opens a window to the other interface, allowing you to create a new victim. Once the new victim has been created, it will return you to the original window, and you can search and select the victim you just created. 
 ## Additional Information
+- GenderOptions.txt FilePath: The GenderOptions text file should work universally across all OS's. The filepath is gotten from line 289 in DisasterVictim.java. The only caveat is that you will have to place the text file in the edu.ucalgary/oop directory
+

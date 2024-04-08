@@ -286,7 +286,7 @@ public class DisasterVictim implements FileAccess{
 
     public boolean validGender(String gender){
         ArrayList<String> validGenders = new ArrayList<>();
-        Path filePath = Paths.get("edu\\ucalgary\\oop\\GenderOptions.txt");
+        Path filePath = Paths.get("edu", "ucalgary", "oop", "GenderOptions.txt");
         validGenders = readFileLines(filePath); 
         for(String gender1: validGenders){
             if(gender1.equals(gender)){
