@@ -13,7 +13,6 @@ By navigating to this file, you can compile and run the main function. This will
 Running the main function in this file will first prompt you to select from all of the current locations in the database. You will have to choose a valid id, if not you will be prompted to pick one again. Once you pick one, you will be prompted with the same two interfaces given to the central worker, with the location already set for database uploading. 
 ---
 ## Interfaces Breakdown
-Each GUI that was developed was done with a specific purpose and for a purpose.
 ---
 ### DisasterVictimLogging GUI
 This interface was broken down into several components to allow a DisasterVictim to be created as well as possible. This interface has multiple components, each of which will be described below
