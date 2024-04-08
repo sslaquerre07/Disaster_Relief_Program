@@ -2,6 +2,7 @@ package edu.ucalgary.oop;
 
 import java.util.ArrayList;
 import java.io.*;
+import java.nio.file.*;
 
 
 public class DisasterVictim implements FileAccess{
@@ -285,7 +286,8 @@ public class DisasterVictim implements FileAccess{
 
     public boolean validGender(String gender){
         ArrayList<String> validGenders = new ArrayList<>();
-        validGenders = readFileLines("edu\\ucalgary\\oop\\GenderOptions.txt"); 
+        Path filePath = Paths.get("edu\\ucalgary\\oop\\GenderOptions.txt");
+        validGenders = readFileLines(filePath); 
         for(String gender1: validGenders){
             if(gender1.equals(gender)){
                 return true;
@@ -294,11 +296,11 @@ public class DisasterVictim implements FileAccess{
         return false;
     }
 
-    public ArrayList<String> readFileLines(String URL){
+    public ArrayList<String> readFileLines(Path URL){
         ArrayList<String> fileContents = new ArrayList<>();
         BufferedReader reader;
         try{
-            reader = new BufferedReader(new FileReader(URL));
+            reader = new BufferedReader(Files.newBufferedReader(URL));
             String line = reader.readLine();
             while(line != null){
                 fileContents.add(line);
@@ -308,6 +310,9 @@ public class DisasterVictim implements FileAccess{
             reader.close();
         }
         catch(FileNotFoundException ex){
+            return null;
+        }
+        catch(NoSuchFileException ex){
             return null;
         }
         catch(IOException ex){

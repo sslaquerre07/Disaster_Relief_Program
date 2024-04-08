@@ -148,7 +148,8 @@ public class InquiryGUI extends JFrame implements ActionListener{
         this.submitInquiry = new JButton("Submit");
 
         //Panels
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         JPanel headerPanel = new JPanel(new FlowLayout());
         JPanel contentPanel = this.setupWorkerInput(workerFlag);
         JPanel buttonPanel = new JPanel(new GridLayout(3,1));
@@ -163,9 +164,9 @@ public class InquiryGUI extends JFrame implements ActionListener{
         buttonPanel.add(this.searchVictimsButton);
         buttonPanel.add(this.createNewPersonButton);
         buttonPanel.add(this.submitInquiry);
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(contentPanel, BorderLayout.WEST);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(headerPanel);
+        mainPanel.add(contentPanel);
+        mainPanel.add(buttonPanel);
 
         return mainPanel;
     }

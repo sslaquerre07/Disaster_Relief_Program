@@ -6,6 +6,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.nio.file.*;
 
 public class DisasterVictimTest {
     private DisasterVictim victim;
@@ -175,7 +176,7 @@ public class DisasterVictimTest {
     @Test
     public void testInvalidFileName(){
         //Since the function returns null when a fileNotFoundException is caught, we'll test with an assert statement
-        String invalidFile = "randomNonsenseLol";
+        Path invalidFile = Paths.get("randomnonsenseLol");
         assertNull(victim.readFileLines(invalidFile));
     }
     /*End of Gender Related Tests */
