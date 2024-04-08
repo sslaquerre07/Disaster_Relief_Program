@@ -247,6 +247,9 @@ public class DBAccess {
                     if(victim.getFamilyConnections().size() != 0){
                         this.addFamilyRelations(victim, relatives);
                     }
+                    if(victim.getPersonalBelongings().size() != 0){
+                        this.addSupplies(victim.getPersonalBelongings(), social_id);
+                    }
                 }
             }
         }
@@ -317,6 +320,26 @@ public class DBAccess {
         }
         catch(SQLException e){
             e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public int addSupplies(ArrayList<Supply> supplyList, int social_id){
+        try{
+            int rowCount = 0;
+            for(int i = 0; i < supplyList.size(); i++){
+                String insertQuery = "INSERT INTO SUPPLY(supply_type, quantity, social_id) VALUES (?, ?, ?)";
+                PreparedStatement insertStatement = this.dbConnect.prepareStatement(insertQuery);
+                insertStatement.setString(1, supplyList.get(i).getType());
+                insertStatement.setInt(2, supplyList.get(i).getQuantity());
+                insertStatement.setInt(3, social_id);
+                insertStatement.executeUpdate();
+                rowCount++;
+            }
+            return rowCount;
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
             return -1;
         }
     }

@@ -18,6 +18,7 @@ public class InquiryTest {
         missingPerson = new DisasterVictim("Jane Alex", "2024-01-25", 14);
         lastKnownLocation = new Location("University of Calgary", "2500 University Dr NW");
         inquiry = new Inquiry(missingPerson, validDate, expectedInfoProvided);
+        inquiry.setLastKnownLocation(lastKnownLocation);
     }
 
     @Test

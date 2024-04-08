@@ -33,6 +33,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private ArrayList<DisasterVictim> relations = new ArrayList<>();
     private ArrayList<String> relationships = new ArrayList<>();
     private ArrayList<FamilyRelation> familyRelations = new ArrayList<>();
+    private ArrayList<Supply> victimSupply = new ArrayList<>();
     private DisasterVictim victim;
 
     /*Main page variables*/
@@ -40,6 +41,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JLabel title;
     private JButton relationshipsButton;
     private JButton medicalRecordsButton;
+    private JButton supplyButton;
     private JButton submitInfo;
 
     //Labels for the main page
@@ -127,6 +129,15 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
     private JButton backHomeButtonFR; 
     private JButton submitRelations;
 
+    /*Supply Page variables */
+    private JLabel supplyTitle;
+    private JLabel supplyNameLabel;
+    private JLabel supplyQuantityLabel;
+    private JTextField supplyNameInput;
+    private JSpinner supplyQuantityInput;
+    private JButton submitSupplyButton;
+    private JButton backHomeSupplyButton; 
+
     //For central workers
     public DisasterVictimLogging(){
         super("Disaster Victim Logging GUI");
@@ -172,6 +183,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         this.cardPanel.add(this.mainPanel, "main");
         this.cardPanel.add(this.medicalPanel, "medical");
         this.cardPanel.add(this.familyRelationsPanel, "relation");
+        this.cardPanel.add(this.setupSupplyPage(), "supply");
 
         //Add cardPanel to the main panel
         getContentPane().add(this.cardPanel);
@@ -227,11 +239,13 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         //Create buttons
         this.relationshipsButton = new JButton("Family Relationships");
         this.medicalRecordsButton = new JButton("Medical Records");
+        this.supplyButton = new JButton("Add Supply");
         this.submitInfo = new JButton("Submit");
 
         //Add Button Listeners
         this.medicalRecordsButton.addActionListener(this);
         this.relationshipsButton.addActionListener(this);
+        this.supplyButton.addActionListener(this);
         this.submitInfo.addActionListener(this);
 
         //Panels for the home page
@@ -239,7 +253,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         headerPanel.setLayout(new FlowLayout());
         JPanel titlePanel = new JPanel(new GridLayout(8,1));
         JPanel inputPanel = new JPanel(new GridLayout(8,1));
-        JPanel buttonPanel = new JPanel(new GridLayout(3, 1));
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1));
         JPanel submitPanel = new JPanel();
         submitPanel.setLayout(new FlowLayout());
 
@@ -267,6 +281,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         inputPanel.add(this.commentsInput);
         buttonPanel.add(this.relationshipsButton);
         buttonPanel.add(this.medicalRecordsButton);
+        buttonPanel.add(this.supplyButton);
         buttonPanel.add(this.submitInfo);
 
         //Main panel that will hold everything:
@@ -531,6 +546,43 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         return existingPersonPanel;
     }
 
+    /*Supply related FE Code */
+    private JPanel setupSupplyPage(){
+        //Label, input, and button setup
+        this.supplyTitle = new JLabel("Welcome to the supply page");
+        this.supplyNameLabel = new JLabel("Please enter the supply name here");
+        this.supplyQuantityLabel = new JLabel("Quantity of this product here");
+        this.supplyNameInput = new JTextField("e.g Toilet Paper", 15);
+        SpinnerModel quantitySpinner = new SpinnerNumberModel(1, 0, 150, 1);
+        this.supplyQuantityInput = new JSpinner(quantitySpinner);
+        JSpinner.NumberEditor editorQ = new JSpinner.NumberEditor(this.supplyQuantityInput, "#");
+        this.supplyQuantityInput.setEditor(editorQ);
+        this.submitSupplyButton = new JButton("Submit");
+        this.backHomeSupplyButton = new JButton("Home");
+        this.submitSupplyButton.addActionListener(this);
+        this.backHomeSupplyButton.addActionListener(this);
+
+        //Panel Setup
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        JPanel headerPanel = new JPanel(new GridLayout(1, 1));
+        JPanel contentPanel = new JPanel(new GridLayout(2, 2));
+        JPanel buttonPanel = new JPanel(new GridLayout(2,1));
+        //Panel component addition
+        headerPanel.add(this.supplyTitle);
+        contentPanel.add(this.supplyNameLabel);
+        contentPanel.add(this.supplyNameInput);
+        contentPanel.add(this.supplyQuantityLabel);
+        contentPanel.add(this.supplyQuantityInput);
+        buttonPanel.add(this.submitSupplyButton);
+        buttonPanel.add(this.backHomeSupplyButton);
+        mainPanel.add(headerPanel);
+        mainPanel.add(contentPanel);
+        mainPanel.add(buttonPanel);
+
+        return mainPanel;
+    }
+
     /*Handle all button presses and option selections */
     public void actionPerformed(ActionEvent event){       
         //All navigational buttons
@@ -542,6 +594,10 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
         }
         if(event.getSource() == this.relationshipsButton){
             this.cardLayout.show(this.cardPanel, "relation");
+        }
+
+        if(event.getSource() == this.supplyButton){
+            this.cardLayout.show(this.cardPanel, "supply");
         }
 
         //All information retrieving buttons
@@ -605,6 +661,7 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             }
             this.victim.setFamilyConnections(this.familyRelations);
             this.victim.setMedicalRecords(this.medicalRecords);
+            this.victim.setPersonalBelongings(this.victimSupply);
             if(centralWorkerFlag){
                 if(!this.dbConnect.validLocationID((int) this.locationIDSpinner.getValue())){
                     JOptionPane.showMessageDialog(this, "Invalid Location ID");
@@ -846,6 +903,27 @@ public class DisasterVictimLogging extends JFrame implements ActionListener{
             this.familyRelationsPanel.add(this.centerPanel, BorderLayout.CENTER);
             this.familyRelationsPanel.revalidate();
             this.familyRelationsPanel.repaint();
+        }
+
+        /*Supply related actions */
+        if(event.getSource() == this.backHomeSupplyButton){
+            this.cardLayout.show(this.cardPanel, "main");
+        }
+        if(event.getSource() == this.submitSupplyButton){
+            boolean validInfo = true;
+            String supplyName = this.supplyNameInput.getText();
+            int supplyQuantity = (int) this.supplyQuantityInput.getValue();
+            if(supplyName.trim().equals("") || supplyName.trim().equals("e.g Toilet Paper")){
+                JOptionPane.showMessageDialog(this, "Invalid Supply Name");
+                validInfo = false;
+            }
+            //Any value allowed in the supply quantity spinner is valid, so no need to validate this data
+            if(validInfo){
+                Supply newSupply = new Supply(supplyName, supplyQuantity);
+                this.victimSupply.add(newSupply);
+                JOptionPane.showMessageDialog(this, "Supply successfully added");
+                this.cardLayout.show(this.cardPanel, "main");
+            }
         }
     }
     

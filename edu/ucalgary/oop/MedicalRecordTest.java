@@ -21,6 +21,7 @@ public class MedicalRecordTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithInvalidDate(){
+        //The following line should throw an illegal argument exception
         MedicalRecord newRecord = new MedicalRecord(expectedLocation, expectedTreatmentDetails, inValidDateOfTreatment);
     }
 	

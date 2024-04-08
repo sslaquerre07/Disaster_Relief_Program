@@ -2,28 +2,33 @@ package edu.ucalgary.oop;
 
 import java.util.*;
 
-public class ReliefService extends DBAccess{
+public class ReliefService{
     private Inquirer inquirer;
     private ArrayList<Inquiry> inquiries = new ArrayList<Inquiry>(); //Initialized
     private ArrayList<ReliefWorker> workers;
 
     // Constructor
     public ReliefService(Inquirer inquirer) {
-        super();
         this.inquirer = inquirer;
+        this.inquiries = new ArrayList<>();
+        this.workers = new ArrayList<>();
     }
 
     // Getter and setter for inquirer
     public Inquirer getInquirer() {
-        return inquirer;
+        return this.inquirer;
     }
 
     public void setInquirer(Inquirer inquirer) {
         this.inquirer = inquirer;
     }
 
+    public void setInquiries(ArrayList<Inquiry> inquiries){
+        this.inquiries = inquiries;
+    }
+
     public ArrayList<Inquiry> getInquiries() {
-        return this.getInquiries();
+        return this.inquiries;
     }
 
     public void addInquiry(DisasterVictim missingPerson, String dateOfInquiry, String infoProvided){
