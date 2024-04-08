@@ -23,12 +23,12 @@ public class DBAccess {
 
     /*All data retrieval related queries */
 
-    public ResultSet retrieveInquirer(String fname, String lname){
+    public ResultSet retrieveInquirer(String fName, String lName){
         try{
             String retrieveQuery = "select * from inquirer where firstName = (?) and lastName = (?)";
             PreparedStatement retrieveStatement = this.dbConnect.prepareStatement(retrieveQuery);
-            retrieveStatement.setString(1, fname);
-            retrieveStatement.setString(2, lname);
+            retrieveStatement.setString(1, fName);
+            retrieveStatement.setString(2, lName);
             ResultSet result = retrieveStatement.executeQuery();
             return result;
         }
@@ -79,11 +79,11 @@ public class DBAccess {
         }
     }
 
-    public ResultSet searchDisasterVictim(String fname){
+    public ResultSet searchDisasterVictim(String fName){
         try{
             String searchQuery = "select * from disaster_victim where lower(fname) like lower(?)";
             PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
-            searchStatement.setString(1, '%' + fname + '%');
+            searchStatement.setString(1, '%' + fName + '%');
             ResultSet result = searchStatement.executeQuery();
             return result;
         }
@@ -93,12 +93,12 @@ public class DBAccess {
         }
     }
 
-    public ResultSet searchDisasterVictim(String fname, String lname){
+    public ResultSet searchDisasterVictim(String fName, String lName){
         try{
             String searchQuery = "select * from disaster_victim where (lower(fname) like lower(?)) and (lower(lname) like lower(?))";
             PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
-            searchStatement.setString(1, '%' + fname + '%');
-            searchStatement.setString(2, '%' + lname + '%');
+            searchStatement.setString(1, '%' + fName + '%');
+            searchStatement.setString(2, '%' + lName + '%');
             ResultSet result = searchStatement.executeQuery();
             return result;
         }
@@ -108,12 +108,12 @@ public class DBAccess {
         }
     }
 
-    public ResultSet retrieveDisasterVictim(String fname, String lname){
+    public ResultSet retrieveDisasterVictim(String fName, String lName){
         try{
             String searchQuery = "select * from disaster_victim where fname = (?) and lname = (?)";
             PreparedStatement searchStatement = this.dbConnect.prepareStatement(searchQuery);
-            searchStatement.setString(1, fname);
-            searchStatement.setString(2, lname);
+            searchStatement.setString(1, fName);
+            searchStatement.setString(2, lName);
             ResultSet result = searchStatement.executeQuery();
             return result;
         }
@@ -176,12 +176,12 @@ public class DBAccess {
 
 
     /*All data insertion related queries */
-    public int addInquirer(String fname, String lname, String phone){
+    public int addInquirer(String fName, String lName, String phone){
         try{
             String addQuery = "INSERT INTO INQUIRER (firstName, lastName, phoneNumber) VALUES (?, ?, ?)";
             PreparedStatement addStatement = this.dbConnect.prepareStatement(addQuery);
-            addStatement.setString(1, fname);
-            addStatement.setString(2, lname);
+            addStatement.setString(1, fName);
+            addStatement.setString(2, lName);
             addStatement.setString(3, phone);
             return addStatement.executeUpdate();
         }
@@ -191,19 +191,19 @@ public class DBAccess {
         }
     }
 
-    public int addInquiry(int social_id, int location_id, int inquirer_id, Inquiry inquiry){
+    public int addInquiry(int socialID, int locationID, int inquirerID, Inquiry inquiry){
         try{
             String addQuery = "INSERT INTO INQUIRY_LOG (inquirer, callDate, details, location_id, social_id) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement addStatement = this.dbConnect.prepareStatement(addQuery);
-            addStatement.setInt(1, inquirer_id);
+            addStatement.setInt(1, inquirerID);
             DateFormat dateFormat = (new SimpleDateFormat("yyyy-MM-dd"));
             java.util.Date date = dateFormat.parse(inquiry.getDateOfInquiry());
             java.sql.Date sqlDate = new java.sql.Date(date.getTime());
             addStatement.setDate(2, sqlDate);
             addStatement.setString(3, inquiry.getInfoProvided());
-            addStatement.setInt(4, location_id);
-            if(social_id != -1){
-                addStatement.setInt(5, social_id);
+            addStatement.setInt(4, locationID);
+            if(socialID != -1){
+                addStatement.setInt(5, socialID);
             }
             else{
                 addStatement.setNull(5, Types.INTEGER);
@@ -259,7 +259,7 @@ public class DBAccess {
     }
 
     //Helper function for GUI
-    public boolean validLocationID(int location_id){
+    public boolean validLocationID(int locationID){
         try{
             Statement getIDStatement = this.dbConnect.createStatement();
             ResultSet result = getIDStatement.executeQuery("SELECT MAX(location_id) FROM DISASTER_VICTIM");
@@ -267,7 +267,7 @@ public class DBAccess {
             if(result.next()){
                 max_id = result.getInt(1);
             }
-            if (location_id < 0 || location_id > max_id){
+            if (locationID < 0 || locationID > max_id){
                 return false;
             }
             else{
@@ -294,7 +294,7 @@ public class DBAccess {
         }
     }
 
-    public int addMedicalRecords(ArrayList<MedicalRecord> list, int social_id){
+    public int addMedicalRecords(ArrayList<MedicalRecord> list, int socialID){
         try{
             int recordsAdded = 0;
             for(int i = 0; i < list.size(); i++){
@@ -312,7 +312,7 @@ public class DBAccess {
                 catch(SQLException ex){
                     ex.printStackTrace();
                 }
-                addMRStatement.setInt(4, social_id);
+                addMRStatement.setInt(4, socialID);
                 addMRStatement.executeUpdate();
                 recordsAdded++;
             }
@@ -324,7 +324,7 @@ public class DBAccess {
         }
     }
 
-    public int addSupplies(ArrayList<Supply> supplyList, int social_id){
+    public int addSupplies(ArrayList<Supply> supplyList, int socialID){
         try{
             int rowCount = 0;
             for(int i = 0; i < supplyList.size(); i++){
@@ -332,7 +332,7 @@ public class DBAccess {
                 PreparedStatement insertStatement = this.dbConnect.prepareStatement(insertQuery);
                 insertStatement.setString(1, supplyList.get(i).getType());
                 insertStatement.setInt(2, supplyList.get(i).getQuantity());
-                insertStatement.setInt(3, social_id);
+                insertStatement.setInt(3, socialID);
                 insertStatement.executeUpdate();
                 rowCount++;
             }
